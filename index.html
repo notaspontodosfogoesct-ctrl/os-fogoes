@@ -6,8 +6,8 @@
 <title>Ordens de Serviço · Ponto dos Fogões</title>
 <meta name="theme-color" content="#1C2126">
 <link rel="manifest" href="manifest.json">
-<link rel="icon" href="icon-192.png">
-<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-cadastro-192.png">
+<link rel="apple-touch-icon" href="icon-cadastro-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Mono:wght@500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -119,6 +119,11 @@ main{max-width:640px;margin:0 auto;padding:16px 14px 90px;}
   width:100%;padding:11px;border:1.5px dashed var(--amber);border-radius:8px;
   background:none;color:var(--amber-dark);font-weight:700;font-size:13.5px;cursor:pointer;margin-bottom:16px;
 }
+.btn-whatsapp{
+  padding:11px 6px;border:1.5px solid var(--green);border-radius:8px;background:var(--green-bg);
+  color:var(--green);font-weight:700;font-size:12.5px;cursor:pointer;text-align:center;
+}
+.btn-whatsapp:active{background:var(--green);color:#fff;}
 
 /* Photos */
 .photo-actions{display:flex;gap:10px;margin-bottom:10px;}
@@ -221,6 +226,42 @@ main{max-width:640px;margin:0 auto;padding:16px 14px 90px;}
 .timeline-item .tl-when{font-size:11px;color:var(--gray);font-family:'IBM Plex Mono',monospace;}
 .timeline-item .tl-evt{font-size:13.5px;font-weight:600;margin-top:1px;}
 .timeline-item .tl-user{font-size:11.5px;color:var(--gray);margin-top:1px;}
+
+/* Alert banner */
+#alertBanner{display:flex;gap:10px;margin-bottom:20px;}
+.alert-card{flex:1;border-radius:14px;padding:16px 14px;cursor:pointer;text-align:center;border:none;transition:transform .1s;}
+.alert-card:active{transform:scale(.97);}
+.alert-card.vencido{background:var(--red);}
+.alert-card.proximo{background:#E8A23C;}
+.alert-card .num{font-size:30px;font-weight:800;font-family:'Space Grotesk',sans-serif;color:#fff;line-height:1;}
+.alert-card .lbl{font-size:11.5px;text-transform:uppercase;letter-spacing:.4px;font-weight:700;color:rgba(255,255,255,.9);margin-top:4px;}
+.alert-card.selected{outline:3px solid var(--charcoal);outline-offset:2px;}
+.alert-calm{background:var(--green-bg);border:1.5px solid var(--green);border-radius:14px;padding:16px;text-align:center;color:var(--green);font-weight:700;font-size:14px;margin-bottom:20px;}
+
+/* Bar chart */
+.chart-box{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:16px 16px 6px;margin-bottom:8px;}
+.chart-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.chart-label{width:108px;flex-shrink:0;font-size:11px;font-weight:700;text-transform:uppercase;color:var(--gray);letter-spacing:.2px;line-height:1.2;}
+.chart-bar-bg{flex:1;background:var(--paper-dim);border-radius:6px;height:24px;position:relative;overflow:hidden;}
+.chart-bar-fill{height:100%;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;box-sizing:border-box;min-width:28px;color:#fff;font-weight:700;font-size:12px;font-family:'IBM Plex Mono',monospace;transition:width .5s ease;white-space:nowrap;}
+
+/* Filter bar */
+.filter-bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.filter-bar select{flex:1;min-width:110px;padding:9px 8px;border:1.5px solid var(--line);border-radius:8px;font-size:12.5px;background:#fff;color:var(--charcoal);}
+
+/* SLA tracking cards */
+.sla-card{background:var(--paper);border-radius:9px;padding:13px 14px;margin-bottom:9px;cursor:pointer;border-left:5px solid var(--line);}
+.sla-card:active{background:#EFEAE0;}
+.sla-card.vencido{border-left-color:var(--red);background:var(--red-bg);}
+.sla-card.proximo{border-left-color:#E8A23C;background:#FCF1DE;}
+.sla-top{display:flex;justify-content:space-between;align-items:flex-start;}
+.sla-os{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:13.5px;color:var(--amber-dark);}
+.sla-cli{font-weight:600;font-size:14px;margin-top:2px;}
+.sla-meta{font-size:11.5px;color:var(--gray);margin-top:2px;}
+.sla-prazo{font-size:12px;font-weight:700;padding:4px 9px;border-radius:20px;white-space:nowrap;}
+.sla-prazo.vencido{background:var(--red);color:#fff;}
+.sla-prazo.proximo{background:#E8A23C;color:#fff;}
+.sla-prazo.ok{background:var(--green-bg);color:var(--green);}
 </style>
 </head>
 <body>
@@ -269,6 +310,7 @@ main{max-width:640px;margin:0 auto;padding:16px 14px 90px;}
           <div class="field">
             <label>Telefone</label>
             <input type="tel" id="f-telefone" placeholder="(31) 90000-0000">
+            <div class="hint" id="clienteHint" style="margin-top:4px;min-height:14px;"></div>
           </div>
           <div class="field">
             <label>Setor</label>
@@ -286,7 +328,14 @@ main{max-width:640px;margin:0 auto;padding:16px 14px 90px;}
         <div class="row2">
           <div class="field">
             <label>Atendente</label>
-            <input type="text" id="f-atendente" placeholder="Quem está atendendo">
+            <select id="f-atendente">
+              <option value="">Selecione</option>
+              <option value="Thais Alves">Thais Alves</option>
+              <option value="Thais Rangel">Thais Rangel</option>
+              <option value="Márcia Rangel">Márcia Rangel</option>
+              <option value="Wilgler Martins">Wilgler Martins</option>
+              <option value="Thaíssia Rangel">Thaíssia Rangel</option>
+            </select>
           </div>
           <div class="field">
             <label>Responsável Técnico</label>
@@ -305,7 +354,7 @@ main{max-width:640px;margin:0 auto;padding:16px 14px 90px;}
           </div>
           <div class="field">
             <label>Status inicial</label>
-            <input type="text" value="ABERTO" disabled style="background:#EFEAE0;color:var(--gray);font-weight:600;">
+            <input type="text" value="ABERTA" disabled style="background:#EFEAE0;color:var(--gray);font-weight:600;">
           </div>
         </div>
 
@@ -330,9 +379,37 @@ main{max-width:640px;margin:0 auto;padding:16px 14px 90px;}
 
   <!-- DASHBOARD -->
   <section class="view" id="view-dashboard">
-    <div id="dashboardStats" class="stats-grid"></div>
-    <div class="section-title">Ordens recentes</div>
-    <div id="dashboardRecent">
+    <div id="alertBanner"></div>
+
+    <div class="section-title">Ordens por status (histórico completo)</div>
+    <div id="statusChart" class="chart-box"></div>
+
+    <div class="section-title">Ordens em acompanhamento</div>
+    <div class="filter-bar">
+      <select id="filtroSetor">
+        <option value="">Todos os setores</option>
+        <option value="ELÉTRICOS">Elétricos</option>
+        <option value="PANELAS">Panelas</option>
+        <option value="LIQUIDIFICADORES">Liquidificadores</option>
+        <option value="SERVIÇOS">Serviços</option>
+        <option value="OUTROS">Outros</option>
+      </select>
+      <select id="filtroStatus">
+        <option value="">Todos os status</option>
+        <option value="ABERTA">Aberta</option>
+        <option value="AGUARDA APROVAÇÃO">Aguarda Aprovação</option>
+        <option value="APROVADO">Aprovado</option>
+        <option value="AGUARDANDO PEÇA">Aguardando Peça</option>
+        <option value="NÃO APROVADO">Não Aprovado</option>
+        <option value="PRONTO">Pronto</option>
+      </select>
+      <select id="filtroAlerta">
+        <option value="">Qualquer prazo</option>
+        <option value="vencido">🔴 Só vencidos</option>
+        <option value="proximo">🟡 Só próximos do prazo</option>
+      </select>
+    </div>
+    <div id="dashboardList">
       <div class="empty-state">Carregando...</div>
     </div>
   </section>
@@ -372,21 +449,16 @@ const QUEUE_KEY = "os_fogoes_queue";
 
 // Espelha o STATUS_FLOW do Code.gs — mantenha os dois sincronizados.
 const STATUS_FLOW = {
-  "ABERTO": ["EM AVALIAÇÃO"],
-  "EM AVALIAÇÃO": ["AGUARDANDO ORÇAMENTO", "AGUARDANDO PEÇA"],
-  "AGUARDANDO ORÇAMENTO": ["AGUARDANDO APROVAÇÃO"],
-  "AGUARDANDO APROVAÇÃO": ["APROVADO", "NÃO APROVADO"],
-  "APROVADO": ["EM EXECUÇÃO"],
-  "AGUARDANDO PEÇA": ["EM EXECUÇÃO"],
-  "EM EXECUÇÃO": ["FINALIZADO", "AGUARDANDO PEÇA"],
-  "FINALIZADO": ["PRONTO PARA RETIRADA"],
-  "PRONTO PARA RETIRADA": ["ENTREGUE"],
-  "NÃO APROVADO": ["EM AVALIAÇÃO"],
-  "ENTREGUE": [],
-  "CANCELADO": [],
-  "DESCARTE": []
+  "ABERTA": ["AGUARDA APROVAÇÃO"],
+  "AGUARDA APROVAÇÃO": ["APROVADO", "NÃO APROVADO"],
+  "APROVADO": ["PRONTO", "AGUARDANDO PEÇA"],
+  "AGUARDANDO PEÇA": ["PRONTO"],
+  "NÃO APROVADO": ["RETIRADO"],
+  "PRONTO": ["RETIRADO"],
+  "RETIRADO": [],
+  "CANCELADO": []
 };
-const TERMINAL_STATUS = ["ENTREGUE", "CANCELADO", "DESCARTE"];
+const TERMINAL_STATUS = ["RETIRADO", "CANCELADO"];
 function nextStatusOptions(current){
   const opts = (STATUS_FLOW[current] || []).slice();
   if (TERMINAL_STATUS.indexOf(current) === -1) {
@@ -410,11 +482,57 @@ function toast(msg){
 function fmtMoney(v){
   return "R$ " + (v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 }
+function fmtDate(v){
+  if(!v) return '';
+  if(typeof v === 'string' && v.includes('/')) return v; // já está em dd/MM/yyyy
+  const d = new Date(v);
+  if(isNaN(d.getTime())) return String(v);
+  return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
+}
 function todayBR(){
   const d = new Date();
   return String(d.getDate()).padStart(2,'0')+"/"+String(d.getMonth()+1).padStart(2,'0')+"/"+d.getFullYear();
 }
 function uid(){ return Date.now()+"_"+Math.random().toString(36).slice(2,8); }
+function normalizePhone(v){
+  // Garante o código do Brasil (+55) para funcionar direto no WhatsApp.
+  let digits = (v||'').replace(/\D/g,'');
+  if(!digits) return '';
+  if(digits.startsWith('55') && digits.length > 11) {
+    // já tem 55 na frente
+  } else {
+    digits = '55' + digits;
+  }
+  return '+' + digits;
+}
+
+/* ============ BUSCA DE CLIENTE PELO TELEFONE (só leitura) ============ */
+let buscaClienteTimeout = null;
+document.getElementById('f-telefone').addEventListener('input', (e)=>{
+  const digits = e.target.value.replace(/\D/g,'');
+  const hint = document.getElementById('clienteHint');
+  clearTimeout(buscaClienteTimeout);
+  if(digits.length < 8){ hint.textContent = ''; return; }
+  hint.textContent = 'Buscando...';
+  hint.style.color = 'var(--gray)';
+  buscaClienteTimeout = setTimeout(async ()=>{
+    try{
+      const r = await fetch(`${GAS_URL}?action=buscar_cliente&telefone=${encodeURIComponent(digits)}`);
+      const j = await r.json();
+      if(j.ok && j.encontrado){
+        hint.textContent = '✅ Cliente encontrado: ' + j.nome;
+        hint.style.color = 'var(--green)';
+        const clienteField = document.getElementById('f-cliente');
+        if(!clienteField.value.trim()) clienteField.value = j.nome;
+      } else {
+        hint.textContent = 'Cliente novo — digite o nome ao lado';
+        hint.style.color = 'var(--amber-dark)';
+      }
+    }catch(err){
+      hint.textContent = '';
+    }
+  }, 500);
+});
 
 /* ============ NAV ============ */
 document.querySelectorAll('.tab-btn').forEach(btn=>{
@@ -578,6 +696,8 @@ async function loadNextOs(){
 
 /* ============ SAVE NEW OS ============ */
 document.getElementById('btnSalvar').addEventListener('click', async ()=>{
+  const btn = document.getElementById('btnSalvar');
+  if(btn.disabled) return; // já está processando um clique — ignora cliques extras
   const cliente = document.getElementById('f-cliente').value.trim();
   if(!cliente){ toast("Informe o nome do cliente"); return; }
   if(document.querySelectorAll('#itemsContainer .item-block').length === 0){
@@ -599,26 +719,35 @@ document.getElementById('btnSalvar').addEventListener('click', async ()=>{
   const payload = {
     action: 'create',
     cliente,
-    telefone: document.getElementById('f-telefone').value.trim(),
+    telefone: normalizePhone(document.getElementById('f-telefone').value),
     dataEntrada: todayBR(),
     setor: document.getElementById('f-setor').value,
     atendente: document.getElementById('f-atendente').value.trim(),
     tecnico: document.getElementById('f-tecnico').value.trim(),
     items,
     entrada: parseFloat(document.getElementById('f-entrada').value)||0,
-    status: 'ABERTO',
+    status: 'ABERTA',
     valorTotal: recalcTotal(),
     photos: photos.map(p=>p.dataUrl),
     clientOsGuess: nextOsNumber
   };
 
-  await queueOrSend(payload);
-  resetForm();
+  btn.disabled = true;
+  const originalText = btn.textContent;
+  btn.textContent = 'Salvando...';
+  try{
+    const sucesso = await queueOrSend(payload);
+    if(sucesso) resetForm();
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalText;
+  }
 });
 
 function resetForm(){
   document.getElementById('f-cliente').value='';
   document.getElementById('f-telefone').value='';
+  document.getElementById('clienteHint').textContent='';
   document.getElementById('f-setor').value='';
   document.getElementById('f-atendente').value='';
   document.getElementById('f-tecnico').value='';
@@ -647,8 +776,12 @@ async function queueOrSend(payload){
     try{
       await sendToBackend(payload);
       toast("Ordem de serviço salva!");
-      return;
+      return true;
     }catch(e){
+      if(e.isValidation){
+        toast(e.message);
+        return false; // recusada pelo servidor — não enfileira, não limpa o formulário
+      }
       console.error(e);
     }
   }
@@ -656,6 +789,7 @@ async function queueOrSend(payload){
   q.push(payload);
   setQueue(q);
   toast("Sem conexão — salvo localmente, será enviado depois");
+  return true;
 }
 async function sendToBackend(payload){
   const res = await fetch(GAS_URL, {
@@ -664,19 +798,28 @@ async function sendToBackend(payload){
     body: JSON.stringify(payload)
   });
   const j = await res.json();
-  if(!j.ok) throw new Error(j.error||'Erro ao salvar');
+  if(!j.ok){
+    const err = new Error(j.error||'Erro ao salvar');
+    err.isValidation = true; // o servidor respondeu e recusou — não é problema de conexão
+    throw err;
+  }
   return j;
 }
 async function flushQueue(){
   let q = getQueue();
   if(q.length === 0) return;
   const remaining = [];
+  let rejeitadas = 0;
   for(const item of q){
     try{ await sendToBackend(item); }
-    catch(e){ remaining.push(item); }
+    catch(e){
+      if(e.isValidation){ rejeitadas++; continue; } // recusada pelo servidor — descarta, não repete pra sempre
+      remaining.push(item);
+    }
   }
   setQueue(remaining);
-  if(remaining.length < q.length) toast("Ordens pendentes sincronizadas");
+  if(remaining.length < q.length - rejeitadas) toast("Ordens pendentes sincronizadas");
+  if(rejeitadas > 0) toast(rejeitadas + " ordem(ns) pendente(s) foram recusadas (duplicidade) e descartadas");
 }
 window.addEventListener('online', ()=>{ setStatusDot(true); flushQueue(); });
 window.addEventListener('offline', ()=>setStatusDot(false));
@@ -722,55 +865,178 @@ async function doSearch(){
 function badgeHtml(status){
   status = (status||'').toUpperCase();
   let cls = 'aberto';
-  if(status.includes('ENTREGUE')) cls='entregue';
-  else if(status.includes('CANCEL')||status.includes('NÃO APROVADO')||status.includes('DESCARTE')) cls='pendente';
-  else if(status.includes('AGUARDANDO')) cls='aguardando';
-  else if(status.includes('EXECUÇÃO')||status.includes('APROVADO')||status.includes('AVALIAÇÃO')||status.includes('FINALIZADO')||status.includes('PRONTO')) cls='execucao';
-  return `<span class="badge ${cls}">${status||'ABERTO'}</span>`;
+  if(status.includes('RETIRADO')) cls='entregue';
+  else if(status.includes('CANCEL')||status.includes('NÃO APROVADO')) cls='pendente';
+  else if(status.includes('AGUARDA')) cls='aguardando';
+  else if(status.includes('APROVADO')||status.includes('PRONTO')) cls='execucao';
+  return `<span class="badge ${cls}">${status||'ABERTA'}</span>`;
 }
 
 /* ============ DASHBOARD ============ */
+let dashboardData = { counts:{}, ativos:[] };
+
 async function loadDashboard(){
-  const statsBox = document.getElementById('dashboardStats');
-  const recentBox = document.getElementById('dashboardRecent');
-  statsBox.innerHTML = '<div class="empty-state">Carregando...</div>';
-  recentBox.innerHTML = '';
+  const banner = document.getElementById('alertBanner');
+  const chartBox = document.getElementById('statusChart');
+  const listBox = document.getElementById('dashboardList');
+  chartBox.innerHTML = '<div class="empty-state">Carregando...</div>';
+  listBox.innerHTML = '';
   try{
     const r = await fetch(`${GAS_URL}?action=dashboard`);
     const j = await r.json();
-    const counts = j.counts || {};
-    const order = ["ABERTO","EM AVALIAÇÃO","AGUARDANDO ORÇAMENTO","AGUARDANDO APROVAÇÃO","APROVADO",
-      "AGUARDANDO PEÇA","EM EXECUÇÃO","FINALIZADO","PRONTO PARA RETIRADA","ENTREGUE","NÃO APROVADO","CANCELADO","DESCARTE"];
-    const total = Object.values(counts).reduce((a,b)=>a+b,0);
-    let html = `<div class="stat-card highlight"><div class="num">${total}</div><div class="lbl">O.S. no total</div></div>`;
-    order.forEach(s=>{
-      if(!counts[s]) return;
-      html += `<div class="stat-card"><div class="num">${counts[s]}</div><div class="lbl">${s}</div></div>`;
-    });
-    statsBox.innerHTML = html;
-
-    if(!j.recent || j.recent.length===0){
-      recentBox.innerHTML = '<div class="empty-state">Nenhuma O.S. cadastrada ainda</div>';
-      return;
-    }
-    recentBox.innerHTML = '';
-    j.recent.forEach(res=>{
-      const card = document.createElement('div');
-      card.className = 'result-card';
-      card.innerHTML = `
-        <div class="result-left">
-          <div class="os">O.S. ${res.os}</div>
-          <div class="cli">${res.cliente || '(sem nome)'}</div>
-          <div class="meta">${res.data || ''}</div>
-        </div>
-        ${badgeHtml(res.status)}
-      `;
-      card.addEventListener('click', ()=>openDetail(res.os));
-      recentBox.appendChild(card);
-    });
+    dashboardData = { counts: j.counts || {}, ativos: j.ativos || [] };
+    renderAlertBanner();
+    renderStatusChart();
+    renderDashboardList();
   }catch(e){
-    statsBox.innerHTML = '<div class="empty-state">Sem conexão para carregar o dashboard.</div>';
+    chartBox.innerHTML = '<div class="empty-state">Sem conexão para carregar o dashboard.</div>';
+    banner.innerHTML = '';
   }
+}
+
+function renderAlertBanner(){
+  const banner = document.getElementById('alertBanner');
+  const vencidos = dashboardData.ativos.filter(a => a.alerta && a.alerta.nivel === 'vencido').length;
+  const proximos = dashboardData.ativos.filter(a => a.alerta && a.alerta.nivel === 'proximo').length;
+
+  if(vencidos === 0 && proximos === 0){
+    banner.innerHTML = `<div class="alert-calm">✅ Nenhum prazo vencido ou próximo do limite</div>`;
+    return;
+  }
+  banner.innerHTML = `
+    <button type="button" class="alert-card vencido ${filtroAlertaAtual==='vencido'?'selected':''}" id="cardVencido">
+      <div class="num">${vencidos}</div><div class="lbl">🔴 Vencido${vencidos!==1?'s':''}</div>
+    </button>
+    <button type="button" class="alert-card proximo ${filtroAlertaAtual==='proximo'?'selected':''}" id="cardProximo">
+      <div class="num">${proximos}</div><div class="lbl">🟡 Perto do prazo</div>
+    </button>
+  `;
+  document.getElementById('cardVencido').addEventListener('click', ()=>{
+    filtroAlertaAtual = filtroAlertaAtual === 'vencido' ? '' : 'vencido';
+    document.getElementById('filtroAlerta').value = filtroAlertaAtual;
+    renderAlertBanner(); renderDashboardList();
+  });
+  document.getElementById('cardProximo').addEventListener('click', ()=>{
+    filtroAlertaAtual = filtroAlertaAtual === 'proximo' ? '' : 'proximo';
+    document.getElementById('filtroAlerta').value = filtroAlertaAtual;
+    renderAlertBanner(); renderDashboardList();
+  });
+}
+
+function renderStatusChart(){
+  const chartBox = document.getElementById('statusChart');
+  const order = ["ABERTA","AGUARDA APROVAÇÃO","APROVADO","AGUARDANDO PEÇA","NÃO APROVADO","PRONTO","RETIRADO","CANCELADO"];
+  const colors = {
+    "ABERTA":"#6B4FA0","AGUARDA APROVAÇÃO":"#A6720C","APROVADO":"#3A5F94","AGUARDANDO PEÇA":"#A6720C",
+    "NÃO APROVADO":"#B23A34","PRONTO":"#3A5F94","RETIRADO":"#2F6B4F","CANCELADO":"#6B7280"
+  };
+  const counts = dashboardData.counts;
+  const max = Math.max(1, ...order.map(s=>counts[s]||0));
+  const total = Object.values(counts).reduce((a,b)=>a+b,0);
+
+  let html = '';
+  order.forEach(s=>{
+    const n = counts[s] || 0;
+    if(n === 0) return;
+    const pct = Math.max(8, Math.round((n/max)*100));
+    html += `
+      <div class="chart-row">
+        <div class="chart-label">${s}</div>
+        <div class="chart-bar-bg"><div class="chart-bar-fill" style="width:${pct}%;background:${colors[s]||'#999'};">${n}</div></div>
+      </div>
+    `;
+  });
+  chartBox.innerHTML = html + `<div class="hint" style="margin-top:2px;">Total geral: ${total} O.S.</div>`;
+}
+
+let filtroAlertaAtual = '';
+function renderDashboardList(){
+  const listBox = document.getElementById('dashboardList');
+  const setor = document.getElementById('filtroSetor').value;
+  const status = document.getElementById('filtroStatus').value;
+  const alerta = document.getElementById('filtroAlerta').value;
+  filtroAlertaAtual = alerta;
+
+  let list = dashboardData.ativos;
+  if(setor) list = list.filter(a => (a.setor||'').toUpperCase() === setor);
+  if(status) list = list.filter(a => a.status === status);
+  if(alerta) list = list.filter(a => a.alerta && a.alerta.nivel === alerta);
+
+  // vencidos primeiro, depois próximos, depois o resto (mais recentes primeiro dentro de cada grupo)
+  const peso = n => n==='vencido' ? 0 : n==='proximo' ? 1 : 2;
+  list = list.slice().sort((a,b)=> peso(a.alerta&&a.alerta.nivel) - peso(b.alerta&&b.alerta.nivel));
+
+  if(list.length === 0){
+    listBox.innerHTML = '<div class="empty-state"><div class="big">📭</div>Nenhuma O.S. encontrada com esse filtro</div>';
+    return;
+  }
+  listBox.innerHTML = '';
+  list.forEach(a=>{
+    const card = document.createElement('div');
+    const nivel = a.alerta ? a.alerta.nivel : null;
+    card.className = 'sla-card' + (nivel ? ' '+nivel : '');
+    let prazoHtml = '';
+    if(a.alerta){
+      const dr = a.alerta.diasRestantes;
+      const txt = dr < 0 ? `venceu há ${Math.abs(dr)}d` : dr === 0 ? 'vence hoje' : `vence em ${dr}d`;
+      const cls = nivel || 'ok';
+      prazoHtml = `<span class="sla-prazo ${cls}">${a.alerta.tipo}: ${txt}</span>`;
+    }
+    card.innerHTML = `
+      <div class="sla-top">
+        <div>
+          <div class="sla-os">O.S. ${a.os}</div>
+          <div class="sla-cli">${a.cliente || '(sem nome)'}</div>
+          <div class="sla-meta">${a.setor||''} · ${a.atendente||''} · ${badgeHtml(a.status)}</div>
+        </div>
+        ${prazoHtml}
+      </div>
+    `;
+    card.addEventListener('click', ()=>openDetail(a.os));
+    listBox.appendChild(card);
+  });
+}
+
+document.getElementById('filtroSetor').addEventListener('change', renderDashboardList);
+document.getElementById('filtroStatus').addEventListener('change', renderDashboardList);
+document.getElementById('filtroAlerta').addEventListener('change', renderDashboardList);
+
+/* ============ WHATSAPP (mesmos modelos da aba Whatsapp da planilha) ============ */
+function renderWhatsappButtons(d){
+  const box = document.getElementById('whatsappButtons');
+  if(!box) return;
+  const nome = d.cliente || '';
+  const os = d.os;
+  const valor = fmtMoney(d.valorTotal||0).replace('R$ ','');
+  const itensTxt = (d.items||[]).map(it => '•'+(it.item||'')).join('\n');
+
+  const msgs = {
+    reserva: `🟧 PONTO DOS FOGÕES – CONTAGEM\nAssistência Técnica em Eletrodomésticos 🔧\n\nOlá, ${nome}! 😊\n\nChegamos na Ordem de Serviço nº ${os}, reservada para você!\n\nPedimos, por gentileza, que traga o equipamento até nossa assistência para que possamos realizar a avaliação técnica e elaborar o orçamento do conserto.\n\nAssim que o aparelho chegar à oficina, ele será encaminhado para análise na fila de manutenção.\n\nAguardamos sua visita.`,
+    orcamento: `🟧 PONTO DOS FOGÕES – CONTAGEM\nAssistência Técnica em Eletrodomésticos 🔧\n\nOlá, ${nome}! 😊\n\nSeu equipamento já foi avaliado.\n\n📋 Ordem de Serviço: ${os}\n💰 Valor do orçamento: R$ ${valor}\n🔌 Aparelho:\n${itensTxt}\n\nPodemos autorizar o conserto?\n\nApós a aprovação, o equipamento será incluído na fila de manutenção.\nAssim que estiver pronto, avisaremos para retirada.`,
+    pronto: `Olá ${nome}!!\n\nSeu produto está pronto para retirada.\n\nNosso horário de atendimento:\n⏰ Seg. a Sex.: 09h às 18h\n🕓 Sábado: 09h às 14h\n❌ Domingo: Fechado\n\nAgradecemos a confiança e preferência!`,
+    naoAprovado: `Olá ${nome}!!\n\nNos casos de *Não Aprovação* é necessário que escolha uma das opções:\n\nFecharmos o aparelho para a retirada (Favor responder: Retirar) 🛠\n📱 (Avisaremos quando estiver pronto) ✔\n\n👨🏻‍🔧Taxa de orçamento R$20,00. 👩🏻‍🔧\n(Favor desconsiderá-la caso já tenha sido paga)\n\nCaso prefira, também podemos fazer o descarte adequado. (Favor responder: Descartar) 🚮`
+  };
+  const labels = {
+    reserva: '📤 Reserva (aguardando trazer)',
+    orcamento: '📤 Orçamento pronto',
+    pronto: '📤 Produto pronto',
+    naoAprovado: '📤 Não aprovado (opções)'
+  };
+
+  box.innerHTML = '';
+  Object.keys(msgs).forEach(key=>{
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'btn-whatsapp';
+    btn.textContent = labels[key];
+    btn.addEventListener('click', ()=>{
+      const telDigits = (d.telefone||'').replace(/\D/g,'');
+      if(!telDigits){ toast('Telefone não cadastrado nesta O.S.'); return; }
+      const url = `https://wa.me/${telDigits}?text=${encodeURIComponent(msgs[key])}`;
+      window.open(url, '_blank');
+    });
+    box.appendChild(btn);
+  });
 }
 
 /* ============ DETAIL / EDIT MODAL ============ */
@@ -815,17 +1081,29 @@ function renderDetail(){
 
   content.innerHTML = `
     <h2 class="mono" style="margin-bottom:2px;">O.S. ${d.os}</h2>
-    <div class="hint" style="margin-top:2px;">${d.cliente} · ${d.telefone||''}</div>
+    <div class="hint" id="cadastroSummary" style="margin-top:2px;display:flex;align-items:center;gap:8px;">
+      <span>${d.cliente} · ${d.telefone||''} · ${d.setor||''} · ${d.atendente||''}
+        ${d.tecnico ? ' · Técnico: '+d.tecnico : ' · <em>sem técnico definido</em>'}
+        ${d.entrada ? ' · Entrada: '+fmtMoney(d.entrada) : ''}
+        ${d.dataAprovacao ? ' · Aprovado em: '+fmtDate(d.dataAprovacao) : ''}
+      </span>
+      <button type="button" id="btnEditCadastro" title="Editar dados cadastrais" style="background:none;border:none;cursor:pointer;font-size:15px;">✏️</button>
+    </div>
+    <div id="cadastroEditWrap" style="display:none;"></div>
 
-    <div class="section-title">Status atual: ${d.status || 'ABERTO'}</div>
+    <div class="section-title">📲 Enviar WhatsApp</div>
+    <div id="whatsappButtons" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;"></div>
+
+    <div class="section-title">Status atual: ${d.status || 'ABERTA'}</div>
     <select id="edit-status" style="width:100%;padding:11px;border:1.5px solid var(--line);border-radius:8px;font-size:15px;margin-bottom:10px;">
       <option value="${d.status}">${d.status} (manter)</option>
-      ${nextStatusOptions(d.status).map(s=>`<option value="${s}">${s}</option>`).join('')}
+      ${nextStatusOptions(d.status).filter(s=>s!=='CANCELADO').map(s=>`<option value="${s}">${s}</option>`).join('')}
     </select>
     <div class="field">
       <label>Responsável pela alteração</label>
       <input type="text" id="edit-usuario" placeholder="Seu nome">
     </div>
+    ${['RETIRADO','CANCELADO'].indexOf(d.status)===-1 ? '<button type="button" id="btnCancelarOS" style="width:100%;padding:11px;border:1.5px solid var(--red);border-radius:8px;background:var(--red-bg);color:var(--red);font-weight:700;font-size:13.5px;cursor:pointer;margin-bottom:16px;">✕ Cancelar esta O.S.</button>' : ''}
 
     <div class="section-title">Itens (${(d.items||[]).length}/6)</div>
     ${itemsHtml || '<div class="hint">Nenhum item cadastrado</div>'}
@@ -864,6 +1142,9 @@ function renderDetail(){
 
   let newPhotosEdit = [];
   let newItemData = null;
+
+  // ===== Mensagens de WhatsApp (mesmos textos já usados na aba Whatsapp da planilha) =====
+  renderWhatsappButtons(d);
 
   const btnAdd = document.getElementById('btnAddItemEdit');
   if(btnAdd){
@@ -944,6 +1225,82 @@ function renderDetail(){
       toast(e.message || "Não foi possível salvar. Verifique a conexão.");
     }
   });
+
+  // ===== Editar dados cadastrais (lápis) =====
+  document.getElementById('btnEditCadastro').addEventListener('click', ()=>{
+    const wrap = document.getElementById('cadastroEditWrap');
+    if(wrap.style.display === 'block'){ wrap.style.display = 'none'; return; }
+    wrap.style.display = 'block';
+    wrap.innerHTML = `
+      <div class="field"><label>Cliente</label><input type="text" id="cad-cliente" value="${(d.cliente||'').replace(/"/g,'&quot;')}"></div>
+      <div class="field"><label>Telefone</label><input type="tel" id="cad-telefone" value="${(d.telefone||'').replace(/"/g,'&quot;')}"></div>
+      <div class="field"><label>Setor</label>
+        <select id="cad-setor">
+          ${['ELÉTRICOS','PANELAS','LIQUIDIFICADORES','SERVIÇOS','OUTROS'].map(s=>`<option value="${s}" ${d.setor===s?'selected':''}>${s}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field"><label>Atendente</label>
+        <select id="cad-atendente">
+          ${['Thais Alves','Thais Rangel','Márcia Rangel','Wilgler Martins','Thaíssia Rangel'].map(a=>`<option value="${a}" ${d.atendente===a?'selected':''}>${a}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field"><label>Responsável Técnico</label>
+        <select id="cad-tecnico">
+          <option value="">Não definido</option>
+          ${['Thais Alves','Thais Rangel','Márcia Rangel','Wilgler Martins','Thaíssia Rangel'].map(a=>`<option value="${a}" ${d.tecnico===a?'selected':''}>${a}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field"><label>Entrada / Taxa</label><input type="number" step="0.01" id="cad-entrada" value="${d.entrada||0}"></div>
+      <button type="button" class="btn-primary" id="btnSaveCadastro" style="background:var(--charcoal);margin-bottom:16px;">Salvar dados cadastrais</button>
+    `;
+    document.getElementById('btnSaveCadastro').addEventListener('click', async ()=>{
+      const payload = {
+        action: 'update',
+        os: d.os,
+        usuario: document.getElementById('edit-usuario').value.trim(),
+        cadastro: {
+          cliente: document.getElementById('cad-cliente').value,
+          telefone: normalizePhone(document.getElementById('cad-telefone').value),
+          setor: document.getElementById('cad-setor').value,
+          atendente: document.getElementById('cad-atendente').value,
+          tecnico: document.getElementById('cad-tecnico').value,
+          entrada: parseFloat(document.getElementById('cad-entrada').value) || 0
+        }
+      };
+      try{
+        await sendToBackend(payload);
+        toast("Dados cadastrais atualizados!");
+        document.getElementById('modalOverlay').classList.remove('active');
+        doSearch();
+      }catch(e){
+        toast(e.message || "Não foi possível salvar. Verifique a conexão.");
+      }
+    });
+  });
+
+  // ===== Cancelar O.S. (com motivo) =====
+  const btnCancelar = document.getElementById('btnCancelarOS');
+  if(btnCancelar){
+    btnCancelar.addEventListener('click', async ()=>{
+      if(!confirm("Tem certeza que deseja cancelar a O.S. " + d.os + "? Essa ação não pode ser desfeita.")) return;
+      const motivo = prompt("Motivo do cancelamento (opcional):") || "";
+      const payload = {
+        action: 'update',
+        os: d.os,
+        status: 'CANCELADO',
+        motivo: motivo,
+        usuario: document.getElementById('edit-usuario').value.trim()
+      };
+      try{
+        await sendToBackend(payload);
+        toast("O.S. cancelada.");
+        document.getElementById('modalOverlay').classList.remove('active');
+        doSearch();
+      }catch(e){
+        toast(e.message || "Não foi possível cancelar. Verifique a conexão.");
+      }
+    });
+  }
 }
 document.getElementById('modalCloseBtn').addEventListener('click', ()=>{
   document.getElementById('modalOverlay').classList.remove('active');
