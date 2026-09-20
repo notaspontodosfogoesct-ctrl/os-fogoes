@@ -1017,25 +1017,64 @@ function renderWhatsappButtons(d){
     naoAprovado: `Olá ${nome}!!\n\nNos casos de *Não Aprovação* é necessário que escolha uma das opções:\n\nFecharmos o aparelho para a retirada (Favor responder: Retirar) 🛠\n📱 (Avisaremos quando estiver pronto) ✔\n\n👨🏻‍🔧Taxa de orçamento R$20,00. 👩🏻‍🔧\n(Favor desconsiderá-la caso já tenha sido paga)\n\nCaso prefira, também podemos fazer o descarte adequado. (Favor responder: Descartar) 🚮`
   };
   const labels = {
-    reserva: '📤 Reserva (aguardando trazer)',
-    orcamento: '📤 Orçamento pronto',
-    pronto: '📤 Produto pronto',
-    naoAprovado: '📤 Não aprovado (opções)'
+    reserva: 'Reserva', orcamento: 'Orçamento', pronto: 'Pronto', naoAprovado: 'Não aprovado'
   };
+  const emojis = ['😊','🔧','✅','📦','⏰','🙏','👍','🚨'];
 
-  box.innerHTML = '';
-  Object.keys(msgs).forEach(key=>{
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'btn-whatsapp';
-    btn.textContent = labels[key];
+  box.innerHTML = `
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+      ${Object.keys(msgs).map(key=>`<button type="button" class="btn-whatsapp" data-key="${key}" style="flex:1;min-width:90px;">${labels[key]}</button>`).join('')}
+    </div>
+    <textarea id="wppEditBox" style="width:100%;min-height:160px;padding:10px 11px;border:1.5px solid var(--line);border-radius:8px;font-size:14px;font-family:'Inter',sans-serif;background:#fff;color:var(--charcoal);"></textarea>
+    <div style="display:flex;gap:5px;flex-wrap:wrap;margin:8px 0;">
+      ${emojis.map(em=>`<button type="button" class="emoji-btn" style="border:1px solid var(--line);background:#fff;border-radius:6px;font-size:16px;padding:4px 8px;cursor:pointer;">${em}</button>`).join('')}
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button type="button" id="btnOuvirMsg" style="flex:1;padding:11px;border:1.5px solid var(--charcoal);border-radius:8px;background:#fff;color:var(--charcoal);font-weight:700;font-size:13px;cursor:pointer;">🔊 Ouvir</button>
+      <button type="button" id="btnEnviarMsg" style="flex:2;padding:11px;border:none;border-radius:8px;background:var(--green);color:#fff;font-weight:700;font-size:13px;cursor:pointer;">📤 Enviar no WhatsApp</button>
+    </div>
+  `;
+
+  const textarea = document.getElementById('wppEditBox');
+  let tipoAtual = 'orcamento';
+  textarea.value = msgs[tipoAtual];
+
+  box.querySelectorAll('[data-key]').forEach(btn=>{
     btn.addEventListener('click', ()=>{
-      const telDigits = (d.telefone||'').replace(/\D/g,'');
-      if(!telDigits){ toast('Telefone não cadastrado nesta O.S.'); return; }
-      const url = `https://wa.me/${telDigits}?text=${encodeURIComponent(msgs[key])}`;
-      window.open(url, '_blank');
+      tipoAtual = btn.dataset.key;
+      textarea.value = msgs[tipoAtual];
     });
-    box.appendChild(btn);
+  });
+
+  box.querySelectorAll('.emoji-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const pos = textarea.selectionStart || textarea.value.length;
+      textarea.value = textarea.value.slice(0,pos) + btn.textContent + textarea.value.slice(pos);
+      textarea.focus();
+    });
+  });
+
+  document.getElementById('btnOuvirMsg').addEventListener('click', ()=>{
+    if(!('speechSynthesis' in window)){ toast('Este navegador não suporta leitura em voz alta'); return; }
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(textarea.value);
+    utter.lang = 'pt-BR';
+    window.speechSynthesis.speak(utter);
+  });
+
+  document.getElementById('btnEnviarMsg').addEventListener('click', async ()=>{
+    const telDigits = (d.telefone||'').replace(/\D/g,'');
+    if(!telDigits){ toast('Telefone não cadastrado nesta O.S.'); return; }
+    const texto = textarea.value;
+    const url = `https://wa.me/${telDigits}?text=${encodeURIComponent(texto)}`;
+    window.open(url, '_blank');
+    try{
+      await sendToBackend({
+        action: 'log_whatsapp', os: d.os, tipo: labels[tipoAtual] || tipoAtual,
+        mensagem: texto, telefone: d.telefone,
+        usuario: document.getElementById('edit-usuario') ? document.getElementById('edit-usuario').value.trim() : ''
+      });
+    }catch(e){ /* registro é só um extra — não impede o envio se falhar */ }
   });
 }
 
