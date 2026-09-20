@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Ordens de Serviço · Ponto dos Fogões</title>
+<meta name="theme-color" content="#1C2126">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-cadastro-192.png">
+<link rel="apple-touch-icon" href="icon-cadastro-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Mono:wght@500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --charcoal:#1C2126;
+  --charcoal-2:#262D34;
+  --paper:#F7F4EE;
+  --paper-dim:#EDE9DF;
+  --amber:#E8622C;
+  --amber-dark:#C94F1F;
+  --green:#2F6B4F;
+  --green-bg:#E4EFE8;
+  --red:#B23A34;
+  --red-bg:#F5E4E2;
+  --gray:#6B7280;
+  --line:#D8D2C4;
+  --radius:10px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;height:100%;}
+body{
+  background:var(--paper-dim);
+  color:var(--charcoal);
+  font-family:'Inter',sans-serif;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+h1,h2,h3{font-family:'Space Grotesk',sans-serif;margin:0;}
+.mono{font-family:'IBM Plex Mono',monospace;}
+
+/* Header */
+header.app-header{
+  background:var(--charcoal);
+  color:var(--paper);
+  padding:16px 18px 14px;
+  position:sticky;top:0;z-index:50;
+  box-shadow:0 2px 10px rgba(0,0,0,.15);
+}
+.app-header .brand{display:flex;align-items:center;justify-content:space-between;}
+.app-header .brand-text h1{font-size:17px;font-weight:700;letter-spacing:.2px;}
+.app-header .brand-text span{display:block;font-size:11.5px;color:#9BA3AC;margin-top:2px;letter-spacing:.4px;text-transform:uppercase;}
+.status-dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px rgba(47,107,79,.25);}
+.status-dot.off{background:var(--red);box-shadow:0 0 0 3px rgba(178,58,52,.25);}
+.pill-queue{
+  font-size:11px;color:var(--amber);background:rgba(232,98,44,.15);
+  padding:3px 9px;border-radius:20px;margin-left:8px;display:none;font-weight:600;
+}
+.tabs{display:flex;gap:6px;margin-top:14px;}
+.tab-btn{
+  flex:1;padding:10px 6px;border:none;border-radius:8px;background:var(--charcoal-2);
+  color:#B8BFC7;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13.5px;
+  cursor:pointer;transition:.15s;
+}
+.tab-btn.active{background:var(--amber);color:#fff;}
+
+main{max-width:640px;margin:0 auto;padding:16px 14px 90px;}
+.view{display:none;}
+.view.active{display:block;}
+
+/* Ticket card */
+.ticket{
+  background:var(--paper);
+  border-radius:var(--radius);
+  border:1px solid var(--line);
+  box-shadow:0 1px 3px rgba(0,0,0,.06);
+  margin-bottom:14px;
+  overflow:hidden;
+}
+.ticket-stub{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 16px;background:var(--charcoal);color:var(--paper);
+  position:relative;
+}
+.ticket-stub::after{
+  content:"";position:absolute;left:0;right:0;bottom:-1px;height:0;
+  border-bottom:2px dashed rgba(247,244,238,.25);
+}
+.ticket-stub .os-num{font-size:26px;font-weight:600;letter-spacing:.5px;}
+.ticket-stub .os-label{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:#9BA3AC;}
+.ticket-body{padding:16px;}
+
+/* Form elements */
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--gray);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px;}
+.field input,.field select,.field textarea{
+  width:100%;padding:11px 12px;border:1.5px solid var(--line);border-radius:8px;
+  font-size:15px;font-family:'Inter',sans-serif;background:#fff;color:var(--charcoal);
+}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--amber);}
+.field textarea{resize:vertical;min-height:44px;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+/* Item block */
+.item-block{
+  border:1.5px dashed var(--line);border-radius:8px;padding:12px;margin-bottom:12px;background:#FCFBF8;
+}
+.item-block .item-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.item-block .item-head span{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:var(--amber-dark);}
+.item-block .rm-item{background:none;border:none;color:var(--red);font-size:12px;font-weight:600;cursor:pointer;}
+.garantia-toggle{display:flex;gap:8px;}
+.garantia-toggle button{
+  flex:1;padding:9px;border-radius:7px;border:1.5px solid var(--line);background:#fff;
+  font-size:13px;font-weight:600;color:var(--gray);cursor:pointer;
+}
+.garantia-toggle button.sel-sim{background:var(--green-bg);border-color:var(--green);color:var(--green);}
+.garantia-toggle button.sel-nao{background:var(--red-bg);border-color:var(--red);color:var(--red);}
+
+.btn-add-item{
+  width:100%;padding:11px;border:1.5px dashed var(--amber);border-radius:8px;
+  background:none;color:var(--amber-dark);font-weight:700;font-size:13.5px;cursor:pointer;margin-bottom:16px;
+}
+.btn-whatsapp{
+  padding:11px 6px;border:1.5px solid var(--green);border-radius:8px;background:var(--green-bg);
+  color:var(--green);font-weight:700;font-size:12.5px;cursor:pointer;text-align:center;
+}
+.btn-whatsapp:active{background:var(--green);color:#fff;}
+
+/* Photos */
+.photo-actions{display:flex;gap:10px;margin-bottom:10px;}
+.photo-actions button{
+  flex:1;padding:12px 8px;border-radius:8px;border:1.5px solid var(--charcoal);
+  background:var(--charcoal);color:#fff;font-weight:600;font-size:13px;cursor:pointer;
+}
+.photo-actions button.secondary{background:#fff;color:var(--charcoal);}
+.photo-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:6px;}
+.photo-thumb{position:relative;aspect-ratio:1;border-radius:7px;overflow:hidden;border:1px solid var(--line);}
+.photo-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+.photo-thumb .rm{
+  position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;
+  background:rgba(0,0,0,.6);color:#fff;border:none;font-size:12px;line-height:1;cursor:pointer;
+}
+
+/* Totals bar */
+.totals{
+  background:var(--charcoal-2);color:var(--paper);border-radius:8px;padding:12px 14px;
+  display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;
+}
+.totals .lbl{font-size:11px;color:#9BA3AC;text-transform:uppercase;letter-spacing:.4px;}
+.totals .val{font-family:'IBM Plex Mono',monospace;font-size:19px;font-weight:600;}
+
+.btn-primary{
+  width:100%;padding:15px;border:none;border-radius:9px;background:var(--amber);
+  color:#fff;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15.5px;cursor:pointer;
+}
+.btn-primary:active{background:var(--amber-dark);}
+.btn-primary:disabled{background:#C9C2B2;}
+
+/* Search / list */
+.search-bar{display:flex;gap:8px;margin-bottom:16px;}
+.search-bar input{flex:1;}
+.search-bar button{
+  padding:0 18px;border:none;border-radius:8px;background:var(--charcoal);color:#fff;font-weight:600;cursor:pointer;
+}
+.result-card{
+  background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:13px 14px;
+  margin-bottom:9px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;
+}
+.result-card:active{background:#EFEAE0;}
+.result-left .os{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:14px;color:var(--amber-dark);}
+.result-left .cli{font-weight:600;font-size:14.5px;margin-top:2px;}
+.result-left .meta{font-size:12px;color:var(--gray);margin-top:2px;}
+.badge{font-size:11px;font-weight:700;padding:4px 9px;border-radius:20px;white-space:nowrap;}
+.badge.entregue{background:var(--green-bg);color:var(--green);}
+.badge.pendente{background:var(--red-bg);color:var(--red);}
+.badge.aberto{background:#EAE3F5;color:#6B4FA0;}
+.badge.aguardando{background:#FDF0DA;color:#A6720C;}
+.badge.execucao{background:#E3ECF7;color:#3A5F94;}
+
+.empty-state{text-align:center;padding:50px 20px;color:var(--gray);}
+.empty-state .big{font-size:34px;margin-bottom:8px;}
+
+/* Modal */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(28,33,38,.55);z-index:100;
+  display:none;align-items:flex-end;justify-content:center;
+}
+.modal-overlay.active{display:flex;}
+.modal-sheet{
+  background:var(--paper);width:100%;max-width:640px;max-height:88vh;overflow-y:auto;
+  border-radius:16px 16px 0 0;padding-bottom:24px;
+}
+.modal-drag{width:38px;height:4px;background:var(--line);border-radius:3px;margin:10px auto;}
+.modal-close{
+  position:sticky;top:0;background:var(--paper);text-align:right;padding:0 16px;z-index:2;
+}
+.modal-close button{background:none;border:none;font-size:22px;color:var(--gray);cursor:pointer;}
+
+.toast{
+  position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+  background:var(--charcoal);color:#fff;padding:12px 20px;border-radius:30px;
+  font-size:13.5px;font-weight:600;z-index:200;opacity:0;transition:opacity .25s;pointer-events:none;
+}
+.toast.show{opacity:1;}
+
+.section-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--gray);margin:18px 0 10px;}
+.hint{font-size:11.5px;color:var(--gray);margin-top:-8px;margin-bottom:14px;}
+
+/* Dashboard */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px;}
+.stat-card{
+  background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:13px 14px;
+}
+.stat-card .num{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:600;color:var(--charcoal);}
+.stat-card .lbl{font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.3px;margin-top:2px;}
+.stat-card.highlight{background:var(--charcoal);}
+.stat-card.highlight .num{color:var(--amber);}
+.stat-card.highlight .lbl{color:#9BA3AC;}
+
+/* Timeline (histórico) */
+.timeline{border-left:2px solid var(--line);margin:4px 0 18px 6px;padding-left:16px;}
+.timeline-item{position:relative;padding-bottom:14px;}
+.timeline-item::before{
+  content:"";position:absolute;left:-20.5px;top:3px;width:9px;height:9px;border-radius:50%;
+  background:var(--amber);border:2px solid var(--paper-dim);
+}
+.timeline-item .tl-when{font-size:11px;color:var(--gray);font-family:'IBM Plex Mono',monospace;}
+.timeline-item .tl-evt{font-size:13.5px;font-weight:600;margin-top:1px;}
+.timeline-item .tl-user{font-size:11.5px;color:var(--gray);margin-top:1px;}
+
+/* Alert banner */
+#alertBanner{display:flex;gap:10px;margin-bottom:20px;}
+.alert-card{flex:1;border-radius:14px;padding:16px 14px;cursor:pointer;text-align:center;border:none;transition:transform .1s;}
+.alert-card:active{transform:scale(.97);}
+.alert-card.vencido{background:var(--red);}
+.alert-card.proximo{background:#E8A23C;}
+.alert-card .num{font-size:30px;font-weight:800;font-family:'Space Grotesk',sans-serif;color:#fff;line-height:1;}
+.alert-card .lbl{font-size:11.5px;text-transform:uppercase;letter-spacing:.4px;font-weight:700;color:rgba(255,255,255,.9);margin-top:4px;}
+.alert-card.selected{outline:3px solid var(--charcoal);outline-offset:2px;}
+.alert-calm{background:var(--green-bg);border:1.5px solid var(--green);border-radius:14px;padding:16px;text-align:center;color:var(--green);font-weight:700;font-size:14px;margin-bottom:20px;}
+
+/* Bar chart */
+.chart-box{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:16px 16px 6px;margin-bottom:8px;}
+.chart-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.chart-label{width:108px;flex-shrink:0;font-size:11px;font-weight:700;text-transform:uppercase;color:var(--gray);letter-spacing:.2px;line-height:1.2;}
+.chart-bar-bg{flex:1;background:var(--paper-dim);border-radius:6px;height:24px;position:relative;overflow:hidden;}
+.chart-bar-fill{height:100%;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;box-sizing:border-box;min-width:28px;color:#fff;font-weight:700;font-size:12px;font-family:'IBM Plex Mono',monospace;transition:width .5s ease;white-space:nowrap;}
+
+/* Filter bar */
+.filter-bar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.filter-bar select{flex:1;min-width:110px;padding:9px 8px;border:1.5px solid var(--line);border-radius:8px;font-size:12.5px;background:#fff;color:var(--charcoal);}
+
+/* SLA tracking cards */
+.sla-card{background:var(--paper);border-radius:9px;padding:13px 14px;margin-bottom:9px;cursor:pointer;border-left:5px solid var(--line);}
+.sla-card:active{background:#EFEAE0;}
+.sla-card.vencido{border-left-color:var(--red);background:var(--red-bg);}
+.sla-card.proximo{border-left-color:#E8A23C;background:#FCF1DE;}
+.sla-top{display:flex;justify-content:space-between;align-items:flex-start;}
+.sla-os{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:13.5px;color:var(--amber-dark);}
+.sla-cli{font-weight:600;font-size:14px;margin-top:2px;}
+.sla-meta{font-size:11.5px;color:var(--gray);margin-top:2px;}
+.sla-prazo{font-size:12px;font-weight:700;padding:4px 9px;border-radius:20px;white-space:nowrap;}
+.sla-prazo.vencido{background:var(--red);color:#fff;}
+.sla-prazo.proximo{background:#E8A23C;color:#fff;}
+.sla-prazo.ok{background:var(--green-bg);color:var(--green);}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="brand">
+    <div class="brand-text">
+      <h1>Ordens de Serviço</h1>
+      <span>Ponto dos Fogões · Contagem</span>
+    </div>
+    <div style="display:flex;align-items:center;">
+      <span class="status-dot" id="statusDot"></span>
+      <span class="pill-queue" id="queuePill">0 pendente(s)</span>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" data-view="novo">Nova O.S.</button>
+    <button class="tab-btn" data-view="dashboard">Dashboard</button>
+    <button class="tab-btn" data-view="consultar">Consultar</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- NOVA OS -->
+  <section class="view active" id="view-novo">
+    <div class="ticket">
+      <div class="ticket-stub">
+        <div>
+          <div class="os-label">Nº da Ordem</div>
+          <div class="os-num mono" id="nextOsDisplay">-----</div>
+        </div>
+        <div>
+          <div class="os-label" style="text-align:right;">Data Entrada</div>
+          <div class="os-num mono" id="dataEntradaDisplay" style="font-size:16px;"></div>
+        </div>
+      </div>
+      <div class="ticket-body">
+
+        <div class="field">
+          <label>Cliente</label>
+          <input type="text" id="f-cliente" placeholder="Nome do cliente" autocomplete="off">
+        </div>
+
+        <div class="row2">
+          <div class="field">
+            <label>Telefone</label>
+            <input type="tel" id="f-telefone" placeholder="(31) 90000-0000">
+            <div class="hint" id="clienteHint" style="margin-top:4px;min-height:14px;"></div>
+          </div>
+          <div class="field">
+            <label>Setor</label>
+            <select id="f-setor">
+              <option value="">Selecione</option>
+              <option>ELÉTRICOS</option>
+              <option>PANELAS</option>
+              <option>LIQUIDIFICADORES</option>
+              <option>SERVIÇOS</option>
+              <option>OUTROS</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row2">
+          <div class="field">
+            <label>Atendente</label>
+            <select id="f-atendente">
+              <option value="">Selecione</option>
+              <option value="Thais Alves">Thais Alves</option>
+              <option value="Thais Rangel">Thais Rangel</option>
+              <option value="Márcia Rangel">Márcia Rangel</option>
+              <option value="Wilgler Martins">Wilgler Martins</option>
+              <option value="Thaíssia Rangel">Thaíssia Rangel</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Responsável Técnico</label>
+            <input type="text" id="f-tecnico" placeholder="Opcional">
+          </div>
+        </div>
+
+        <div class="section-title">Itens / Serviços</div>
+        <div id="itemsContainer"></div>
+        <button type="button" class="btn-add-item" id="btnAddItem">+ Adicionar item</button>
+
+        <div class="row2">
+          <div class="field">
+            <label>Entrada / Taxa</label>
+            <input type="number" step="0.01" id="f-entrada" placeholder="0,00">
+          </div>
+          <div class="field">
+            <label>Status inicial</label>
+            <input type="text" value="ABERTA" disabled style="background:#EFEAE0;color:var(--gray);font-weight:600;">
+          </div>
+        </div>
+
+        <div class="section-title">Fotos da Ordem</div>
+        <div class="photo-actions">
+          <button type="button" id="btnCamera">📷 Câmera</button>
+          <button type="button" class="secondary" id="btnGaleria">🖼 Galeria</button>
+        </div>
+        <input type="file" id="inputCamera" accept="image/*" capture="environment" style="display:none;">
+        <input type="file" id="inputGaleria" accept="image/*" multiple style="display:none;">
+        <div class="photo-grid" id="photoGrid"></div>
+
+        <div class="totals">
+          <span class="lbl">Valor Total</span>
+          <span class="val" id="totalDisplay">R$ 0,00</span>
+        </div>
+
+        <button class="btn-primary" id="btnSalvar">Salvar Ordem de Serviço</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- DASHBOARD -->
+  <section class="view" id="view-dashboard">
+    <div id="alertBanner"></div>
+
+    <div class="section-title">Ordens por status (histórico completo)</div>
+    <div id="statusChart" class="chart-box"></div>
+
+    <div class="section-title">Ordens em acompanhamento</div>
+    <div class="filter-bar">
+      <select id="filtroSetor">
+        <option value="">Todos os setores</option>
+        <option value="ELÉTRICOS">Elétricos</option>
+        <option value="PANELAS">Panelas</option>
+        <option value="LIQUIDIFICADORES">Liquidificadores</option>
+        <option value="SERVIÇOS">Serviços</option>
+        <option value="OUTROS">Outros</option>
+      </select>
+      <select id="filtroStatus">
+        <option value="">Todos os status</option>
+        <option value="ABERTA">Aberta</option>
+        <option value="AGUARDA APROVAÇÃO">Aguarda Aprovação</option>
+        <option value="APROVADO">Aprovado</option>
+        <option value="AGUARDANDO PEÇA">Aguardando Peça</option>
+        <option value="NÃO APROVADO">Não Aprovado</option>
+        <option value="PRONTO">Pronto</option>
+      </select>
+      <select id="filtroAlerta">
+        <option value="">Qualquer prazo</option>
+        <option value="vencido">🔴 Só vencidos</option>
+        <option value="proximo">🟡 Só próximos do prazo</option>
+      </select>
+    </div>
+    <div id="dashboardList">
+      <div class="empty-state">Carregando...</div>
+    </div>
+  </section>
+
+  <!-- CONSULTAR -->
+  <section class="view" id="view-consultar">
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Nº da O.S., cliente ou telefone" inputmode="search">
+      <button id="btnSearch">Buscar</button>
+    </div>
+    <div id="searchResults">
+      <div class="empty-state">
+        <div class="big">🔍</div>
+        Busque por número da O.S., cliente ou telefone
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-sheet">
+    <div class="modal-drag"></div>
+    <div class="modal-close"><button id="modalCloseBtn">✕</button></div>
+    <div id="modalContent" style="padding:0 16px;"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============ CONFIG ============ */
+const GAS_URL = "https://script.google.com/macros/s/AKfycby_wggcU36pcH45aK3kRwxx8Ce-_mqFqqrNhFsKK7huJeXILJiLLKn2DfFl4rFDDYyz1A/exec";
+const MAX_ITEMS = 6;
+const DB_NAME = "os_fogoes_db";
+const QUEUE_KEY = "os_fogoes_queue";
+
+// Espelha o STATUS_FLOW do Code.gs — mantenha os dois sincronizados.
+const STATUS_FLOW = {
+  "ABERTA": ["AGUARDA APROVAÇÃO"],
+  "AGUARDA APROVAÇÃO": ["APROVADO", "NÃO APROVADO"],
+  "APROVADO": ["PRONTO", "AGUARDANDO PEÇA"],
+  "AGUARDANDO PEÇA": ["PRONTO"],
+  "NÃO APROVADO": ["RETIRADO"],
+  "PRONTO": ["RETIRADO"],
+  "RETIRADO": [],
+  "CANCELADO": []
+};
+const TERMINAL_STATUS = ["RETIRADO", "CANCELADO"];
+function nextStatusOptions(current){
+  const opts = (STATUS_FLOW[current] || []).slice();
+  if (TERMINAL_STATUS.indexOf(current) === -1) {
+    opts.push("CANCELADO", "DESCARTE");
+  }
+  return opts;
+}
+
+/* ============ STATE ============ */
+let itemCount = 0;
+let photos = []; // {dataUrl, id}
+let nextOsNumber = null;
+
+/* ============ UTIL ============ */
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2400);
+}
+function fmtMoney(v){
+  return "R$ " + (v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function fmtDate(v){
+  if(!v) return '';
+  if(typeof v === 'string' && v.includes('/')) return v; // já está em dd/MM/yyyy
+  const d = new Date(v);
+  if(isNaN(d.getTime())) return String(v);
+  return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
+}
+function todayBR(){
+  const d = new Date();
+  return String(d.getDate()).padStart(2,'0')+"/"+String(d.getMonth()+1).padStart(2,'0')+"/"+d.getFullYear();
+}
+function uid(){ return Date.now()+"_"+Math.random().toString(36).slice(2,8); }
+function normalizePhone(v){
+  // Garante o código do Brasil (+55) para funcionar direto no WhatsApp.
+  let digits = (v||'').replace(/\D/g,'');
+  if(!digits) return '';
+  if(digits.startsWith('55') && digits.length > 11) {
+    // já tem 55 na frente
+  } else {
+    digits = '55' + digits;
+  }
+  return '+' + digits;
+}
+
+/* ============ BUSCA DE CLIENTE PELO TELEFONE (só leitura) ============ */
+let buscaClienteTimeout = null;
+document.getElementById('f-telefone').addEventListener('input', (e)=>{
+  const digits = e.target.value.replace(/\D/g,'');
+  const hint = document.getElementById('clienteHint');
+  clearTimeout(buscaClienteTimeout);
+  if(digits.length < 8){ hint.textContent = ''; return; }
+  hint.textContent = 'Buscando...';
+  hint.style.color = 'var(--gray)';
+  buscaClienteTimeout = setTimeout(async ()=>{
+    try{
+      const r = await fetch(`${GAS_URL}?action=buscar_cliente&telefone=${encodeURIComponent(digits)}`);
+      const j = await r.json();
+      if(j.ok && j.encontrado){
+        hint.textContent = '✅ Cliente encontrado: ' + j.nome;
+        hint.style.color = 'var(--green)';
+        const clienteField = document.getElementById('f-cliente');
+        if(!clienteField.value.trim()) clienteField.value = j.nome;
+      } else {
+        hint.textContent = 'Cliente novo — digite o nome ao lado';
+        hint.style.color = 'var(--amber-dark)';
+      }
+    }catch(err){
+      hint.textContent = '';
+    }
+  }, 500);
+});
+
+/* ============ NAV ============ */
+document.querySelectorAll('.tab-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('view-'+btn.dataset.view).classList.add('active');
+    if(btn.dataset.view === 'dashboard') loadDashboard();
+  });
+});
+
+/* ============ ITEMS (Nova OS) ============ */
+function addItemBlock(data){
+  if(itemCount >= MAX_ITEMS){ toast("Máximo de 6 itens por O.S."); return; }
+  itemCount++;
+  const idx = itemCount;
+  const wrap = document.createElement('div');
+  wrap.className = 'item-block';
+  wrap.dataset.idx = idx;
+  wrap.innerHTML = `
+    <div class="item-head">
+      <span>ITEM ${String(idx).padStart(2,'0')}</span>
+      <button type="button" class="rm-item">remover</button>
+    </div>
+    <div class="field">
+      <label>Item</label>
+      <input type="text" class="it-item" placeholder="Ex: Liquidificador motor e copo">
+    </div>
+    <div class="field">
+      <label>Garantia</label>
+      <div class="garantia-toggle">
+        <button type="button" class="g-btn" data-v="NÃO">Não</button>
+        <button type="button" class="g-btn" data-v="SIM">Sim</button>
+      </div>
+    </div>
+    <div class="field prazo-field" style="display:none;">
+      <label>Prazo de Garantia</label>
+      <input type="text" class="it-prazo" placeholder="Ex: 90 dias, 6 meses, 1 ano">
+    </div>
+    <div class="field">
+      <label>Serviço</label>
+      <textarea class="it-servico" placeholder="Descrição do serviço realizado"></textarea>
+    </div>
+    <div class="field">
+      <label>Histórico</label>
+      <textarea class="it-historico" placeholder="Observações (opcional)"></textarea>
+    </div>
+    <div class="field" style="margin-bottom:0;">
+      <label>Valor</label>
+      <input type="number" step="0.01" class="it-valor" placeholder="0,00">
+    </div>
+  `;
+  wrap.querySelector('.rm-item').addEventListener('click', ()=>{
+    wrap.remove(); renumberItems(); recalcTotal();
+  });
+  wrap.querySelectorAll('.g-btn').forEach(gb=>{
+    gb.addEventListener('click', ()=>{
+      wrap.querySelectorAll('.g-btn').forEach(x=>x.classList.remove('sel-sim','sel-nao'));
+      gb.classList.add(gb.dataset.v === 'SIM' ? 'sel-sim' : 'sel-nao');
+      wrap.dataset.garantia = gb.dataset.v;
+      wrap.querySelector('.prazo-field').style.display = gb.dataset.v === 'SIM' ? 'block' : 'none';
+      if(gb.dataset.v === 'NÃO') wrap.querySelector('.it-prazo').value = '';
+    });
+  });
+  wrap.querySelector('.it-valor').addEventListener('input', recalcTotal);
+  document.getElementById('itemsContainer').appendChild(wrap);
+
+  // default garantia = NÃO
+  wrap.querySelector('.g-btn[data-v="NÃO"]').click();
+
+  if(data){
+    wrap.querySelector('.it-item').value = data.item||'';
+    wrap.querySelector('.it-servico').value = data.servico||'';
+    wrap.querySelector('.it-historico').value = data.historico||'';
+    wrap.querySelector('.it-valor').value = data.valor||'';
+    if(data.garantia === 'SIM'){
+      wrap.querySelector('.g-btn[data-v="SIM"]').click();
+      wrap.querySelector('.it-prazo').value = data.prazoGarantia||'';
+    }
+  }
+}
+function renumberItems(){
+  itemCount = 0;
+  document.querySelectorAll('#itemsContainer .item-block').forEach(el=>{
+    itemCount++;
+    el.dataset.idx = itemCount;
+    el.querySelector('.item-head span').textContent = 'ITEM ' + String(itemCount).padStart(2,'0');
+  });
+}
+function recalcTotal(){
+  let total = 0;
+  document.querySelectorAll('.it-valor').forEach(inp=>{ total += parseFloat(inp.value)||0; });
+  document.getElementById('totalDisplay').textContent = fmtMoney(total);
+  return total;
+}
+document.getElementById('btnAddItem').addEventListener('click', ()=>addItemBlock());
+
+/* ============ PHOTOS ============ */
+function compressImage(file){
+  return new Promise((resolve,reject)=>{
+    const reader = new FileReader();
+    reader.onload = e=>{
+      const img = new Image();
+      img.onload = ()=>{
+        const maxW = 1280;
+        const scale = Math.min(1, maxW/img.width);
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width*scale;
+        canvas.height = img.height*scale;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img,0,0,canvas.width,canvas.height);
+        resolve(canvas.toDataURL('image/jpeg',0.72));
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+function renderPhotos(){
+  const grid = document.getElementById('photoGrid');
+  grid.innerHTML = '';
+  photos.forEach(p=>{
+    const div = document.createElement('div');
+    div.className = 'photo-thumb';
+    div.innerHTML = `<img src="${p.dataUrl}"><button class="rm" data-id="${p.id}">✕</button>`;
+    div.querySelector('.rm').addEventListener('click', ()=>{
+      photos = photos.filter(x=>x.id!==p.id);
+      renderPhotos();
+    });
+    grid.appendChild(div);
+  });
+}
+async function handleFiles(fileList){
+  for(const file of fileList){
+    try{
+      const dataUrl = await compressImage(file);
+      photos.push({dataUrl, id: uid()});
+    }catch(e){ console.error(e); }
+  }
+  renderPhotos();
+}
+document.getElementById('btnCamera').addEventListener('click', ()=>document.getElementById('inputCamera').click());
+document.getElementById('btnGaleria').addEventListener('click', ()=>document.getElementById('inputGaleria').click());
+document.getElementById('inputCamera').addEventListener('change', e=>{ handleFiles(e.target.files); e.target.value=''; });
+document.getElementById('inputGaleria').addEventListener('change', e=>{ handleFiles(e.target.files); e.target.value=''; });
+
+/* ============ NEXT OS NUMBER ============ */
+async function loadNextOs(){
+  try{
+    const r = await fetch(`${GAS_URL}?action=nextos`);
+    const j = await r.json();
+    nextOsNumber = j.nextOs;
+    document.getElementById('nextOsDisplay').textContent = nextOsNumber;
+  }catch(e){
+    document.getElementById('nextOsDisplay').textContent = '(offline)';
+  }
+}
+
+/* ============ SAVE NEW OS ============ */
+document.getElementById('btnSalvar').addEventListener('click', async ()=>{
+  const btn = document.getElementById('btnSalvar');
+  if(btn.disabled) return; // já está processando um clique — ignora cliques extras
+  const cliente = document.getElementById('f-cliente').value.trim();
+  if(!cliente){ toast("Informe o nome do cliente"); return; }
+  if(document.querySelectorAll('#itemsContainer .item-block').length === 0){
+    toast("Adicione ao menos 1 item"); return;
+  }
+
+  const items = [];
+  document.querySelectorAll('#itemsContainer .item-block').forEach(el=>{
+    items.push({
+      item: el.querySelector('.it-item').value.trim(),
+      garantia: el.dataset.garantia || 'NÃO',
+      servico: el.querySelector('.it-servico').value.trim(),
+      historico: el.querySelector('.it-historico').value.trim(),
+      valor: parseFloat(el.querySelector('.it-valor').value)||0,
+      prazoGarantia: el.querySelector('.it-prazo').value.trim()
+    });
+  });
+
+  const payload = {
+    action: 'create',
+    cliente,
+    telefone: normalizePhone(document.getElementById('f-telefone').value),
+    dataEntrada: todayBR(),
+    setor: document.getElementById('f-setor').value,
+    atendente: document.getElementById('f-atendente').value.trim(),
+    tecnico: document.getElementById('f-tecnico').value.trim(),
+    items,
+    entrada: parseFloat(document.getElementById('f-entrada').value)||0,
+    status: 'ABERTA',
+    valorTotal: recalcTotal(),
+    photos: photos.map(p=>p.dataUrl),
+    clientOsGuess: nextOsNumber
+  };
+
+  btn.disabled = true;
+  const originalText = btn.textContent;
+  btn.textContent = 'Salvando...';
+  try{
+    const sucesso = await queueOrSend(payload);
+    if(sucesso) resetForm();
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalText;
+  }
+});
+
+function resetForm(){
+  document.getElementById('f-cliente').value='';
+  document.getElementById('f-telefone').value='';
+  document.getElementById('clienteHint').textContent='';
+  document.getElementById('f-setor').value='';
+  document.getElementById('f-atendente').value='';
+  document.getElementById('f-tecnico').value='';
+  document.getElementById('f-entrada').value='';
+  document.getElementById('itemsContainer').innerHTML='';
+  itemCount = 0;
+  photos = [];
+  renderPhotos();
+  recalcTotal();
+  addItemBlock();
+  document.getElementById('dataEntradaDisplay').textContent = todayBR();
+  loadNextOs();
+}
+
+/* ============ OFFLINE QUEUE ============ */
+function getQueue(){ return JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]'); }
+function setQueue(q){ localStorage.setItem(QUEUE_KEY, JSON.stringify(q)); updateQueuePill(); }
+function updateQueuePill(){
+  const n = getQueue().length;
+  const pill = document.getElementById('queuePill');
+  if(n>0){ pill.style.display='inline-block'; pill.textContent = n + ' pendente' + (n>1?'s':''); }
+  else{ pill.style.display='none'; }
+}
+async function queueOrSend(payload){
+  if(navigator.onLine){
+    try{
+      await sendToBackend(payload);
+      toast("Ordem de serviço salva!");
+      return true;
+    }catch(e){
+      if(e.isValidation){
+        toast(e.message);
+        return false; // recusada pelo servidor — não enfileira, não limpa o formulário
+      }
+      console.error(e);
+    }
+  }
+  const q = getQueue();
+  q.push(payload);
+  setQueue(q);
+  toast("Sem conexão — salvo localmente, será enviado depois");
+  return true;
+}
+async function sendToBackend(payload){
+  const res = await fetch(GAS_URL, {
+    method: 'POST',
+    headers: {'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify(payload)
+  });
+  const j = await res.json();
+  if(!j.ok){
+    const err = new Error(j.error||'Erro ao salvar');
+    err.isValidation = true; // o servidor respondeu e recusou — não é problema de conexão
+    throw err;
+  }
+  return j;
+}
+async function flushQueue(){
+  let q = getQueue();
+  if(q.length === 0) return;
+  const remaining = [];
+  let rejeitadas = 0;
+  for(const item of q){
+    try{ await sendToBackend(item); }
+    catch(e){
+      if(e.isValidation){ rejeitadas++; continue; } // recusada pelo servidor — descarta, não repete pra sempre
+      remaining.push(item);
+    }
+  }
+  setQueue(remaining);
+  if(remaining.length < q.length - rejeitadas) toast("Ordens pendentes sincronizadas");
+  if(rejeitadas > 0) toast(rejeitadas + " ordem(ns) pendente(s) foram recusadas (duplicidade) e descartadas");
+}
+window.addEventListener('online', ()=>{ setStatusDot(true); flushQueue(); });
+window.addEventListener('offline', ()=>setStatusDot(false));
+function setStatusDot(on){
+  document.getElementById('statusDot').classList.toggle('off', !on);
+}
+
+/* ============ SEARCH / CONSULTAR ============ */
+document.getElementById('btnSearch').addEventListener('click', doSearch);
+document.getElementById('searchInput').addEventListener('keypress', e=>{ if(e.key==='Enter') doSearch(); });
+
+async function doSearch(){
+  const q = document.getElementById('searchInput').value.trim();
+  const box = document.getElementById('searchResults');
+  if(!q){ toast("Digite algo para buscar"); return; }
+  box.innerHTML = '<div class="empty-state">Buscando...</div>';
+  try{
+    const r = await fetch(`${GAS_URL}?action=search&q=${encodeURIComponent(q)}`);
+    const j = await r.json();
+    if(!j.results || j.results.length===0){
+      box.innerHTML = '<div class="empty-state"><div class="big">📭</div>Nenhuma ordem encontrada</div>';
+      return;
+    }
+    box.innerHTML = '';
+    j.results.forEach(res=>{
+      const card = document.createElement('div');
+      card.className = 'result-card';
+      card.innerHTML = `
+        <div class="result-left">
+          <div class="os">O.S. ${res.os}</div>
+          <div class="cli">${res.cliente || '(sem nome)'}</div>
+          <div class="meta">${res.data || ''} · ${res.setor || ''}</div>
+        </div>
+        ${badgeHtml(res.status)}
+      `;
+      card.addEventListener('click', ()=>openDetail(res.os));
+      box.appendChild(card);
+    });
+  }catch(e){
+    box.innerHTML = '<div class="empty-state">Sem conexão. Tente novamente quando estiver online.</div>';
+  }
+}
+function badgeHtml(status){
+  status = (status||'').toUpperCase();
+  let cls = 'aberto';
+  if(status.includes('RETIRADO')) cls='entregue';
+  else if(status.includes('CANCEL')||status.includes('NÃO APROVADO')) cls='pendente';
+  else if(status.includes('AGUARDA')) cls='aguardando';
+  else if(status.includes('APROVADO')||status.includes('PRONTO')) cls='execucao';
+  return `<span class="badge ${cls}">${status||'ABERTA'}</span>`;
+}
+
+/* ============ DASHBOARD ============ */
+let dashboardData = { counts:{}, ativos:[] };
+
+async function loadDashboard(){
+  const banner = document.getElementById('alertBanner');
+  const chartBox = document.getElementById('statusChart');
+  const listBox = document.getElementById('dashboardList');
+  chartBox.innerHTML = '<div class="empty-state">Carregando...</div>';
+  listBox.innerHTML = '';
+  try{
+    const r = await fetch(`${GAS_URL}?action=dashboard`);
+    const j = await r.json();
+    dashboardData = { counts: j.counts || {}, ativos: j.ativos || [] };
+    renderAlertBanner();
+    renderStatusChart();
+    renderDashboardList();
+  }catch(e){
+    chartBox.innerHTML = '<div class="empty-state">Sem conexão para carregar o dashboard.</div>';
+    banner.innerHTML = '';
+  }
+}
+
+function renderAlertBanner(){
+  const banner = document.getElementById('alertBanner');
+  const vencidos = dashboardData.ativos.filter(a => a.alerta && a.alerta.nivel === 'vencido').length;
+  const proximos = dashboardData.ativos.filter(a => a.alerta && a.alerta.nivel === 'proximo').length;
+
+  if(vencidos === 0 && proximos === 0){
+    banner.innerHTML = `<div class="alert-calm">✅ Nenhum prazo vencido ou próximo do limite</div>`;
+    return;
+  }
+  banner.innerHTML = `
+    <button type="button" class="alert-card vencido ${filtroAlertaAtual==='vencido'?'selected':''}" id="cardVencido">
+      <div class="num">${vencidos}</div><div class="lbl">🔴 Vencido${vencidos!==1?'s':''}</div>
+    </button>
+    <button type="button" class="alert-card proximo ${filtroAlertaAtual==='proximo'?'selected':''}" id="cardProximo">
+      <div class="num">${proximos}</div><div class="lbl">🟡 Perto do prazo</div>
+    </button>
+  `;
+  document.getElementById('cardVencido').addEventListener('click', ()=>{
+    filtroAlertaAtual = filtroAlertaAtual === 'vencido' ? '' : 'vencido';
+    document.getElementById('filtroAlerta').value = filtroAlertaAtual;
+    renderAlertBanner(); renderDashboardList();
+  });
+  document.getElementById('cardProximo').addEventListener('click', ()=>{
+    filtroAlertaAtual = filtroAlertaAtual === 'proximo' ? '' : 'proximo';
+    document.getElementById('filtroAlerta').value = filtroAlertaAtual;
+    renderAlertBanner(); renderDashboardList();
+  });
+}
+
+function renderStatusChart(){
+  const chartBox = document.getElementById('statusChart');
+  const order = ["ABERTA","AGUARDA APROVAÇÃO","APROVADO","AGUARDANDO PEÇA","NÃO APROVADO","PRONTO","RETIRADO","CANCELADO"];
+  const colors = {
+    "ABERTA":"#6B4FA0","AGUARDA APROVAÇÃO":"#A6720C","APROVADO":"#3A5F94","AGUARDANDO PEÇA":"#A6720C",
+    "NÃO APROVADO":"#B23A34","PRONTO":"#3A5F94","RETIRADO":"#2F6B4F","CANCELADO":"#6B7280"
+  };
+  const counts = dashboardData.counts;
+  const max = Math.max(1, ...order.map(s=>counts[s]||0));
+  const total = Object.values(counts).reduce((a,b)=>a+b,0);
+
+  let html = '';
+  order.forEach(s=>{
+    const n = counts[s] || 0;
+    if(n === 0) return;
+    const pct = Math.max(8, Math.round((n/max)*100));
+    html += `
+      <div class="chart-row">
+        <div class="chart-label">${s}</div>
+        <div class="chart-bar-bg"><div class="chart-bar-fill" style="width:${pct}%;background:${colors[s]||'#999'};">${n}</div></div>
+      </div>
+    `;
+  });
+  chartBox.innerHTML = html + `<div class="hint" style="margin-top:2px;">Total geral: ${total} O.S.</div>`;
+}
+
+let filtroAlertaAtual = '';
+function renderDashboardList(){
+  const listBox = document.getElementById('dashboardList');
+  const setor = document.getElementById('filtroSetor').value;
+  const status = document.getElementById('filtroStatus').value;
+  const alerta = document.getElementById('filtroAlerta').value;
+  filtroAlertaAtual = alerta;
+
+  let list = dashboardData.ativos;
+  if(setor) list = list.filter(a => (a.setor||'').toUpperCase() === setor);
+  if(status) list = list.filter(a => a.status === status);
+  if(alerta) list = list.filter(a => a.alerta && a.alerta.nivel === alerta);
+
+  // vencidos primeiro, depois próximos, depois o resto (mais recentes primeiro dentro de cada grupo)
+  const peso = n => n==='vencido' ? 0 : n==='proximo' ? 1 : 2;
+  list = list.slice().sort((a,b)=> peso(a.alerta&&a.alerta.nivel) - peso(b.alerta&&b.alerta.nivel));
+
+  if(list.length === 0){
+    listBox.innerHTML = '<div class="empty-state"><div class="big">📭</div>Nenhuma O.S. encontrada com esse filtro</div>';
+    return;
+  }
+  listBox.innerHTML = '';
+  list.forEach(a=>{
+    const card = document.createElement('div');
+    const nivel = a.alerta ? a.alerta.nivel : null;
+    card.className = 'sla-card' + (nivel ? ' '+nivel : '');
+    let prazoHtml = '';
+    if(a.alerta){
+      const dr = a.alerta.diasRestantes;
+      const txt = dr < 0 ? `venceu há ${Math.abs(dr)}d` : dr === 0 ? 'vence hoje' : `vence em ${dr}d`;
+      const cls = nivel || 'ok';
+      prazoHtml = `<span class="sla-prazo ${cls}">${a.alerta.tipo}: ${txt}</span>`;
+    }
+    card.innerHTML = `
+      <div class="sla-top">
+        <div>
+          <div class="sla-os">O.S. ${a.os}</div>
+          <div class="sla-cli">${a.cliente || '(sem nome)'}</div>
+          <div class="sla-meta">${a.setor||''} · ${a.atendente||''} · ${badgeHtml(a.status)}</div>
+        </div>
+        ${prazoHtml}
+      </div>
+    `;
+    card.addEventListener('click', ()=>openDetail(a.os));
+    listBox.appendChild(card);
+  });
+}
+
+document.getElementById('filtroSetor').addEventListener('change', renderDashboardList);
+document.getElementById('filtroStatus').addEventListener('change', renderDashboardList);
+document.getElementById('filtroAlerta').addEventListener('change', renderDashboardList);
+
+/* ============ WHATSAPP (mesmos modelos da aba Whatsapp da planilha) ============ */
+function renderWhatsappButtons(d){
+  const box = document.getElementById('whatsappButtons');
+  if(!box) return;
+  const nome = d.cliente || '';
+  const os = d.os;
+  const valor = fmtMoney(d.valorTotal||0).replace('R$ ','');
+  const itensTxt = (d.items||[]).map(it => '•'+(it.item||'')).join('\n');
+
+  const msgs = {
+    reserva: `🟧 PONTO DOS FOGÕES – CONTAGEM\nAssistência Técnica em Eletrodomésticos 🔧\n\nOlá, ${nome}! 😊\n\nChegamos na Ordem de Serviço nº ${os}, reservada para você!\n\nPedimos, por gentileza, que traga o equipamento até nossa assistência para que possamos realizar a avaliação técnica e elaborar o orçamento do conserto.\n\nAssim que o aparelho chegar à oficina, ele será encaminhado para análise na fila de manutenção.\n\nAguardamos sua visita.`,
+    orcamento: `🟧 PONTO DOS FOGÕES – CONTAGEM\nAssistência Técnica em Eletrodomésticos 🔧\n\nOlá, ${nome}! 😊\n\nSeu equipamento já foi avaliado.\n\n📋 Ordem de Serviço: ${os}\n💰 Valor do orçamento: R$ ${valor}\n🔌 Aparelho:\n${itensTxt}\n\nPodemos autorizar o conserto?\n\nApós a aprovação, o equipamento será incluído na fila de manutenção.\nAssim que estiver pronto, avisaremos para retirada.`,
+    pronto: `Olá ${nome}!!\n\nSeu produto está pronto para retirada.\n\nNosso horário de atendimento:\n⏰ Seg. a Sex.: 09h às 18h\n🕓 Sábado: 09h às 14h\n❌ Domingo: Fechado\n\nAgradecemos a confiança e preferência!`,
+    naoAprovado: `Olá ${nome}!!\n\nNos casos de *Não Aprovação* é necessário que escolha uma das opções:\n\nFecharmos o aparelho para a retirada (Favor responder: Retirar) 🛠\n📱 (Avisaremos quando estiver pronto) ✔\n\n👨🏻‍🔧Taxa de orçamento R$20,00. 👩🏻‍🔧\n(Favor desconsiderá-la caso já tenha sido paga)\n\nCaso prefira, também podemos fazer o descarte adequado. (Favor responder: Descartar) 🚮`
+  };
+  const labels = {
+    reserva: 'Reserva', orcamento: 'Orçamento', pronto: 'Pronto', naoAprovado: 'Não aprovado'
+  };
+  const emojis = ['😊','🔧','✅','📦','⏰','🙏','👍','🚨'];
+
+  box.innerHTML = `
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+      ${Object.keys(msgs).map(key=>`<button type="button" class="btn-whatsapp" data-key="${key}" style="flex:1;min-width:90px;">${labels[key]}</button>`).join('')}
+    </div>
+    <textarea id="wppEditBox" style="width:100%;min-height:160px;padding:10px 11px;border:1.5px solid var(--line);border-radius:8px;font-size:14px;font-family:'Inter',sans-serif;background:#fff;color:var(--charcoal);"></textarea>
+    <div style="display:flex;gap:5px;flex-wrap:wrap;margin:8px 0;">
+      ${emojis.map(em=>`<button type="button" class="emoji-btn" style="border:1px solid var(--line);background:#fff;border-radius:6px;font-size:16px;padding:4px 8px;cursor:pointer;">${em}</button>`).join('')}
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button type="button" id="btnOuvirMsg" style="flex:1;padding:11px;border:1.5px solid var(--charcoal);border-radius:8px;background:#fff;color:var(--charcoal);font-weight:700;font-size:13px;cursor:pointer;">🔊 Ouvir</button>
+      <button type="button" id="btnEnviarMsg" style="flex:2;padding:11px;border:none;border-radius:8px;background:var(--green);color:#fff;font-weight:700;font-size:13px;cursor:pointer;">📤 Enviar no WhatsApp</button>
+    </div>
+  `;
+
+  const textarea = document.getElementById('wppEditBox');
+  let tipoAtual = 'orcamento';
+  textarea.value = msgs[tipoAtual];
+
+  box.querySelectorAll('[data-key]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      tipoAtual = btn.dataset.key;
+      textarea.value = msgs[tipoAtual];
+    });
+  });
+
+  box.querySelectorAll('.emoji-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const pos = textarea.selectionStart || textarea.value.length;
+      textarea.value = textarea.value.slice(0,pos) + btn.textContent + textarea.value.slice(pos);
+      textarea.focus();
+    });
+  });
+
+  document.getElementById('btnOuvirMsg').addEventListener('click', ()=>{
+    if(!('speechSynthesis' in window)){ toast('Este navegador não suporta leitura em voz alta'); return; }
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance(textarea.value);
+    utter.lang = 'pt-BR';
+    window.speechSynthesis.speak(utter);
+  });
+
+  document.getElementById('btnEnviarMsg').addEventListener('click', async ()=>{
+    const telDigits = (d.telefone||'').replace(/\D/g,'');
+    if(!telDigits){ toast('Telefone não cadastrado nesta O.S.'); return; }
+    const texto = textarea.value;
+    const url = `https://wa.me/${telDigits}?text=${encodeURIComponent(texto)}`;
+    window.open(url, '_blank');
+    try{
+      await sendToBackend({
+        action: 'log_whatsapp', os: d.os, tipo: labels[tipoAtual] || tipoAtual,
+        mensagem: texto, telefone: d.telefone,
+        usuario: document.getElementById('edit-usuario') ? document.getElementById('edit-usuario').value.trim() : ''
+      });
+    }catch(e){ /* registro é só um extra — não impede o envio se falhar */ }
+  });
+}
+
+/* ============ DETAIL / EDIT MODAL ============ */
+let currentDetail = null;
+let currentHistory = [];
+async function openDetail(os){
+  const overlay = document.getElementById('modalOverlay');
+  const content = document.getElementById('modalContent');
+  content.innerHTML = '<div class="empty-state">Carregando...</div>';
+  overlay.classList.add('active');
+  try{
+    const [detailRes, histRes] = await Promise.all([
+      fetch(`${GAS_URL}?action=get&os=${encodeURIComponent(os)}`),
+      fetch(`${GAS_URL}?action=history&os=${encodeURIComponent(os)}`)
+    ]);
+    const j = await detailRes.json();
+    const h = await histRes.json();
+    if(!j.ok){ content.innerHTML = '<div class="empty-state">Ordem não encontrada</div>'; return; }
+    currentDetail = j.data;
+    currentHistory = (h.ok && h.events) ? h.events : [];
+    renderDetail();
+  }catch(e){
+    content.innerHTML = '<div class="empty-state">Sem conexão para carregar detalhes.</div>';
+  }
+}
+function renderDetail(){
+  const d = currentDetail;
+  const content = document.getElementById('modalContent');
+  const itemsHtml = (d.items||[]).map((it,i)=>`
+    <div class="item-block">
+      <div class="item-head"><span>ITEM ${String(i+1).padStart(2,'0')}</span></div>
+      <div class="hint" style="margin:0 0 6px;">${it.garantia==='SIM' ? ('Com garantia' + (it.prazoGarantia ? ' · '+it.prazoGarantia : '')) : 'Sem garantia'}</div>
+      <div class="field"><label>Item</label><div>${it.item||'-'}</div></div>
+      <div class="field"><label>Serviço</label><div>${it.servico||'-'}</div></div>
+      <div class="field"><label>Valor</label><div class="mono">${fmtMoney(it.valor||0)}</div></div>
+    </div>
+  `).join('');
+
+  const photosHtml = (d.fotos||[]).map(url=>`
+    <div class="photo-thumb"><img src="${url}"></div>
+  `).join('');
+
+  content.innerHTML = `
+    <h2 class="mono" style="margin-bottom:2px;">O.S. ${d.os}</h2>
+    <div class="hint" id="cadastroSummary" style="margin-top:2px;display:flex;align-items:center;gap:8px;">
+      <span>${d.cliente} · ${d.telefone||''} · ${d.setor||''} · ${d.atendente||''}
+        ${d.tecnico ? ' · Técnico: '+d.tecnico : ' · <em>sem técnico definido</em>'}
+        ${d.entrada ? ' · Entrada: '+fmtMoney(d.entrada) : ''}
+        ${d.dataAprovacao ? ' · Aprovado em: '+fmtDate(d.dataAprovacao) : ''}
+      </span>
+      <button type="button" id="btnEditCadastro" title="Editar dados cadastrais" style="background:none;border:none;cursor:pointer;font-size:15px;">✏️</button>
+    </div>
+    <div id="cadastroEditWrap" style="display:none;"></div>
+
+    <div class="section-title">📲 Enviar WhatsApp</div>
+    <div id="whatsappButtons" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;"></div>
+
+    <div class="section-title">Status atual: ${d.status || 'ABERTA'}</div>
+    <select id="edit-status" style="width:100%;padding:11px;border:1.5px solid var(--line);border-radius:8px;font-size:15px;margin-bottom:10px;">
+      <option value="${d.status}">${d.status} (manter)</option>
+      ${nextStatusOptions(d.status).filter(s=>s!=='CANCELADO').map(s=>`<option value="${s}">${s}</option>`).join('')}
+    </select>
+    <div class="field">
+      <label>Responsável pela alteração</label>
+      <input type="text" id="edit-usuario" placeholder="Seu nome">
+    </div>
+    ${['RETIRADO','CANCELADO'].indexOf(d.status)===-1 ? '<button type="button" id="btnCancelarOS" style="width:100%;padding:11px;border:1.5px solid var(--red);border-radius:8px;background:var(--red-bg);color:var(--red);font-weight:700;font-size:13.5px;cursor:pointer;margin-bottom:16px;">✕ Cancelar esta O.S.</button>' : ''}
+
+    <div class="section-title">Itens (${(d.items||[]).length}/6)</div>
+    ${itemsHtml || '<div class="hint">Nenhum item cadastrado</div>'}
+    ${(d.items||[]).length < 6 ? '<button type="button" class="btn-add-item" id="btnAddItemEdit">+ Adicionar novo item</button>' : ''}
+    <div id="newItemEditWrap"></div>
+
+    <div class="section-title">Fotos</div>
+    <div class="photo-actions">
+      <button type="button" id="btnCameraEdit">📷 Câmera</button>
+      <button type="button" class="secondary" id="btnGaleriaEdit">🖼 Galeria</button>
+    </div>
+    <input type="file" id="inputCameraEdit" accept="image/*" capture="environment" style="display:none;">
+    <input type="file" id="inputGaleriaEdit" accept="image/*" multiple style="display:none;">
+    <div class="photo-grid">${photosHtml}</div>
+    <div class="photo-grid" id="newPhotoGridEdit"></div>
+
+    <div class="totals" style="margin-top:16px;">
+      <span class="lbl">Valor Total</span>
+      <span class="val mono">${fmtMoney(d.valorTotal||0)}</span>
+    </div>
+
+    <button class="btn-primary" id="btnSaveEdit">Salvar alterações</button>
+
+    <div class="section-title">Histórico</div>
+    <div class="timeline">
+      ${currentHistory.length===0 ? '<div class="hint">Sem movimentações registradas ainda</div>' :
+        currentHistory.map(ev => `
+          <div class="timeline-item">
+            <div class="tl-when">${ev.dataHora}</div>
+            <div class="tl-evt">${ev.evento}${ev.statusNovo ? ' → ' + ev.statusNovo : ''}</div>
+            ${ev.usuario ? `<div class="tl-user">${ev.usuario}</div>` : ''}
+          </div>
+        `).join('')}
+    </div>
+  `;
+
+  let newPhotosEdit = [];
+  let newItemData = null;
+
+  // ===== Mensagens de WhatsApp (mesmos textos já usados na aba Whatsapp da planilha) =====
+  renderWhatsappButtons(d);
+
+  const btnAdd = document.getElementById('btnAddItemEdit');
+  if(btnAdd){
+    btnAdd.addEventListener('click', ()=>{
+      btnAdd.style.display='none';
+      const wrap = document.getElementById('newItemEditWrap');
+      wrap.innerHTML = `
+        <div class="item-block">
+          <div class="item-head"><span>NOVO ITEM</span></div>
+          <div class="field"><label>Item</label><input type="text" id="ni-item"></div>
+          <div class="field"><label>Garantia</label>
+            <div class="garantia-toggle">
+              <button type="button" class="g-btn" data-v="NÃO">Não</button>
+              <button type="button" class="g-btn" data-v="SIM">Sim</button>
+            </div>
+          </div>
+          <div class="field ni-prazo-field" style="display:none;">
+            <label>Prazo de Garantia</label>
+            <input type="text" id="ni-prazo" placeholder="Ex: 90 dias, 6 meses, 1 ano">
+          </div>
+          <div class="field"><label>Serviço</label><textarea id="ni-servico"></textarea></div>
+          <div class="field"><label>Histórico</label><textarea id="ni-historico"></textarea></div>
+          <div class="field" style="margin-bottom:0;"><label>Valor</label><input type="number" step="0.01" id="ni-valor"></div>
+        </div>`;
+      wrap.querySelectorAll('.g-btn').forEach(gb=>{
+        gb.addEventListener('click', ()=>{
+          wrap.querySelectorAll('.g-btn').forEach(x=>x.classList.remove('sel-sim','sel-nao'));
+          gb.classList.add(gb.dataset.v==='SIM'?'sel-sim':'sel-nao');
+          wrap.dataset.garantia = gb.dataset.v;
+          wrap.querySelector('.ni-prazo-field').style.display = gb.dataset.v === 'SIM' ? 'block' : 'none';
+          if(gb.dataset.v === 'NÃO') wrap.querySelector('#ni-prazo').value = '';
+        });
+      });
+      wrap.querySelector('.g-btn[data-v="NÃO"]').click();
+    });
+  }
+
+  document.getElementById('btnCameraEdit').addEventListener('click', ()=>document.getElementById('inputCameraEdit').click());
+  document.getElementById('btnGaleriaEdit').addEventListener('click', ()=>document.getElementById('inputGaleriaEdit').click());
+  async function handleEditFiles(fileList){
+    for(const file of fileList){
+      const dataUrl = await compressImage(file);
+      newPhotosEdit.push(dataUrl);
+    }
+    const grid = document.getElementById('newPhotoGridEdit');
+    grid.innerHTML = newPhotosEdit.map(u=>`<div class="photo-thumb"><img src="${u}"></div>`).join('');
+  }
+  document.getElementById('inputCameraEdit').addEventListener('change', e=>{ handleEditFiles(e.target.files); e.target.value=''; });
+  document.getElementById('inputGaleriaEdit').addEventListener('change', e=>{ handleEditFiles(e.target.files); e.target.value=''; });
+
+  document.getElementById('btnSaveEdit').addEventListener('click', async ()=>{
+    const wrap = document.getElementById('newItemEditWrap');
+    let newItem = null;
+    if(wrap.querySelector('#ni-item')){
+      newItem = {
+        item: wrap.querySelector('#ni-item').value.trim(),
+        garantia: wrap.dataset.garantia || 'NÃO',
+        servico: wrap.querySelector('#ni-servico').value.trim(),
+        historico: wrap.querySelector('#ni-historico').value.trim(),
+        valor: parseFloat(wrap.querySelector('#ni-valor').value)||0,
+        prazoGarantia: wrap.querySelector('#ni-prazo').value.trim()
+      };
+    }
+    const payload = {
+      action: 'update',
+      os: d.os,
+      status: document.getElementById('edit-status').value,
+      usuario: document.getElementById('edit-usuario').value.trim(),
+      newItem,
+      newPhotos: newPhotosEdit
+    };
+    try{
+      await sendToBackend(payload);
+      toast("Ordem atualizada!");
+      document.getElementById('modalOverlay').classList.remove('active');
+      doSearch();
+    }catch(e){
+      toast(e.message || "Não foi possível salvar. Verifique a conexão.");
+    }
+  });
+
+  // ===== Editar dados cadastrais (lápis) =====
+  document.getElementById('btnEditCadastro').addEventListener('click', ()=>{
+    const wrap = document.getElementById('cadastroEditWrap');
+    if(wrap.style.display === 'block'){ wrap.style.display = 'none'; return; }
+    wrap.style.display = 'block';
+    wrap.innerHTML = `
+      <div class="field"><label>Cliente</label><input type="text" id="cad-cliente" value="${(d.cliente||'').replace(/"/g,'&quot;')}"></div>
+      <div class="field"><label>Telefone</label><input type="tel" id="cad-telefone" value="${(d.telefone||'').replace(/"/g,'&quot;')}"></div>
+      <div class="field"><label>Setor</label>
+        <select id="cad-setor">
+          ${['ELÉTRICOS','PANELAS','LIQUIDIFICADORES','SERVIÇOS','OUTROS'].map(s=>`<option value="${s}" ${d.setor===s?'selected':''}>${s}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field"><label>Atendente</label>
+        <select id="cad-atendente">
+          ${['Thais Alves','Thais Rangel','Márcia Rangel','Wilgler Martins','Thaíssia Rangel'].map(a=>`<option value="${a}" ${d.atendente===a?'selected':''}>${a}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field"><label>Responsável Técnico</label>
+        <select id="cad-tecnico">
+          <option value="">Não definido</option>
+          ${['Thais Alves','Thais Rangel','Márcia Rangel','Wilgler Martins','Thaíssia Rangel'].map(a=>`<option value="${a}" ${d.tecnico===a?'selected':''}>${a}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field"><label>Entrada / Taxa</label><input type="number" step="0.01" id="cad-entrada" value="${d.entrada||0}"></div>
+      <button type="button" class="btn-primary" id="btnSaveCadastro" style="background:var(--charcoal);margin-bottom:16px;">Salvar dados cadastrais</button>
+    `;
+    document.getElementById('btnSaveCadastro').addEventListener('click', async ()=>{
+      const payload = {
+        action: 'update',
+        os: d.os,
+        usuario: document.getElementById('edit-usuario').value.trim(),
+        cadastro: {
+          cliente: document.getElementById('cad-cliente').value,
+          telefone: normalizePhone(document.getElementById('cad-telefone').value),
+          setor: document.getElementById('cad-setor').value,
+          atendente: document.getElementById('cad-atendente').value,
+          tecnico: document.getElementById('cad-tecnico').value,
+          entrada: parseFloat(document.getElementById('cad-entrada').value) || 0
+        }
+      };
+      try{
+        await sendToBackend(payload);
+        toast("Dados cadastrais atualizados!");
+        document.getElementById('modalOverlay').classList.remove('active');
+        doSearch();
+      }catch(e){
+        toast(e.message || "Não foi possível salvar. Verifique a conexão.");
+      }
+    });
+  });
+
+  // ===== Cancelar O.S. (com motivo) =====
+  const btnCancelar = document.getElementById('btnCancelarOS');
+  if(btnCancelar){
+    btnCancelar.addEventListener('click', async ()=>{
+      if(!confirm("Tem certeza que deseja cancelar a O.S. " + d.os + "? Essa ação não pode ser desfeita.")) return;
+      const motivo = prompt("Motivo do cancelamento (opcional):") || "";
+      const payload = {
+        action: 'update',
+        os: d.os,
+        status: 'CANCELADO',
+        motivo: motivo,
+        usuario: document.getElementById('edit-usuario').value.trim()
+      };
+      try{
+        await sendToBackend(payload);
+        toast("O.S. cancelada.");
+        document.getElementById('modalOverlay').classList.remove('active');
+        doSearch();
+      }catch(e){
+        toast(e.message || "Não foi possível cancelar. Verifique a conexão.");
+      }
+    });
+  }
+}
+document.getElementById('modalCloseBtn').addEventListener('click', ()=>{
+  document.getElementById('modalOverlay').classList.remove('active');
+});
+
+/* ============ SERVICE WORKER / INSTALL ============ */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('service-worker.js').catch(console.error);
+  });
+}
+
+/* ============ INIT ============ */
+document.getElementById('dataEntradaDisplay').textContent = todayBR();
+addItemBlock();
+loadNextOs();
+updateQueuePill();
+setStatusDot(navigator.onLine);
+setInterval(()=>{ if(navigator.onLine) flushQueue(); }, 30000);
+</script>
+</body>
+</html>
