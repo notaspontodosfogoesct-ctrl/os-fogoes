@@ -25,7 +25,7 @@ const CADASTRO_SHEET_NAME = "Cadastro";
 
 // Cole aqui o ID de uma pasta do Google Drive onde as fotos serão salvas.
 // Pegue o ID na URL da pasta: drive.google.com/drive/folders/ESTE_TRECHO_AQUI
-const DRIVE_FOLDER_ID = "COLE_O_ID_DA_PASTA_DO_DRIVE_AQUI";
+const DRIVE_FOLDER_ID = "https://drive.google.com/drive/folders/1nFL8IPcP5P3aKo_yB6yhOQ1qG_F9tYl0?usp=drive_link";
 
 const HEADER_ROW = 1;
 const DATA_START_ROW = 2;
